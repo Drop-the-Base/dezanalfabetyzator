@@ -35,6 +35,9 @@ pnpm-debug.log*
 # Frontend zbudowany do serwowania przez backend
 backend/static/
 
+# Vercel
+.vercel/
+
 # IDE / OS
 .vscode/*
 !.vscode/extensions.json

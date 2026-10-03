@@ -1,4 +1,4 @@
-"""Wejście funkcji Python na Vercelu — cała aplikacja FastAPI z backend/."""
+"""Wejście funkcji Python na Vercelu: wystawia aplikację FastAPI z `backend/`."""
 
 import sys
 from pathlib import Path

@@ -10,8 +10,7 @@
     "demo-reset": "cd backend && uv run python -m app.seed --reset",
     "test": "cd backend && uv run pytest -q",
     "lint": "cd backend && uv run ruff check app tests && cd .. && npm --prefix frontend run lint",
-    "build": "npm --prefix frontend run build",
-    "requirements": "cd backend && uv export --no-dev --no-hashes --no-emit-project --format requirements-txt -o ../requirements.txt"
+    "build": "npm --prefix frontend run build"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

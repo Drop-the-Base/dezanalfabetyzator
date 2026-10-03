@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -40,7 +41,7 @@ def health():
 
 # Lokalnie / w kontenerze: serwuj zbudowany frontend. Na Vercelu robi to CDN.
 STATIC = Path(__file__).resolve().parents[2] / "frontend" / "dist"
-if STATIC.exists():
+if STATIC.exists() and not os.environ.get("VERCEL"):
     app.mount("/assets", StaticFiles(directory=STATIC / "assets"), name="assets")
 
     @app.get("/{path:path}", include_in_schema=False)

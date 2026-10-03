@@ -26,10 +26,10 @@ npm run dev                   # backend :8000 + frontend :5173
 ```
 Telefony w tej samej sieci Wi-Fi: `http://<IP-komputera>:5173`.
 
-Inne: `npm test` (testy backendu), `npm run lint`, `npm run requirements` (odświeża `requirements.txt` dla Vercela po zmianie zależności).
+Inne: `npm test` (testy backendu), `npm run lint`. Po zmianie zależności backendu zaktualizuj też `requirements.txt` (Vercel).
 
 ## Deploy (Vercel)
-- Frontend: statyczny build `frontend/dist`; backend: `api/index.py` (FastAPI jako funkcja Python). Konfiguracja w `vercel.json`.
+- Frontend: statyczny build `frontend/dist` (`scripts/vercel-build.sh`); backend: `api/index.py` (FastAPI jako funkcja Python). Konfiguracja w `vercel.json`.
 - Zmienne środowiskowe: `LLM_PROVIDER=groq`, `GROQ_API_KEY`, `GROQ_MODEL`, `DATABASE_URL` (Neon Postgres z Vercel Marketplace).
 - Bez `DATABASE_URL` aplikacja używa SQLite w `/tmp` — działa, ale dane znikają (tylko do pierwszego testu).
 - Dane demo na produkcji: `DATABASE_URL=<neon-url> npm run seed`.
