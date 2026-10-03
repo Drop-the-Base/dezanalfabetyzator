@@ -117,7 +117,7 @@ def list_stories(session: SessionDep, user: UserDep, age_group: AgeGroup | None 
     q = select(Story).order_by(col(Story.updated_at).desc()).limit(50)
     if age_group:
         q = q.where(Story.age_group == age_group)
-    return stories_out(session, list(session.exec(q).all()))
+    return stories_out(session, list(session.exec(q).all()), user.id)
 
 
 @router.get("/stories/{story_id}", response_model=StoryDetail)
@@ -128,7 +128,7 @@ def get_story(story_id: int, session: SessionDep, user: UserDep):
         .where(Segment.story_id == story_id, Segment.status == SegmentStatus.approved)
         .order_by(Segment.position)
     ).all()
-    base = stories_out(session, [story])[0]
+    base = stories_out(session, [story], user.id)[0]
     return StoryDetail(**base.model_dump(), segments=segments_out(session, list(segs)))
 
 
@@ -176,7 +176,7 @@ def create_ai_story(body: AIStory, session: SessionDep, user: UserDep):
     _review(session, seg, ReviewKind.moderation, verdict="ok", model=source, raw_json=mod.model_dump_json())
     session.commit()
     session.refresh(story)
-    return stories_out(session, [story])[0]
+    return stories_out(session, [story], user.id)[0]
 
 
 def _status(verdict: str) -> SegmentStatus:

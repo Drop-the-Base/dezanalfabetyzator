@@ -2,6 +2,7 @@ import secrets
 from datetime import UTC, datetime
 from enum import StrEnum
 
+from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, SQLModel
 
 
@@ -54,6 +55,17 @@ class Segment(SQLModel, table=True):
     comprehension_score: int | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now, index=True)
+
+
+class Like(SQLModel, table=True):
+    """Serduszko: jedno dziecko może polubić historię raz. Liczniki liczymy zapytaniem, nie trzymamy w Story."""
+
+    __table_args__ = (UniqueConstraint("user_id", "story_id"),)
+
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True)
+    story_id: int = Field(foreign_key="story.id", index=True)
+    created_at: datetime = Field(default_factory=now)
 
 
 class AIReview(SQLModel, table=True):

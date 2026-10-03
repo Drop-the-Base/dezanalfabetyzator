@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from app.ai.provider import LLMError, get_provider
 from app.ai.services import provider_name
-from app.api import auth, stories, updates
+from app.api import auth, likes, stories, updates
 from app.config import APP_NAME, get_settings
 from app.db import engine, init_db
 
@@ -38,7 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (auth.router, stories.router, updates.router):
+for r in (auth.router, likes.router, stories.router, updates.router):  # likes przed stories: /stories/trending
     app.include_router(r)
 
 

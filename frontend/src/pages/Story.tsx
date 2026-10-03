@@ -4,7 +4,7 @@ import { api, ApiError, type Review, type Segment, type StoryDetail, type Submit
 import { AGE_LABELS, MAX_LEN, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
-import { Avatar, Button, Mascot, TopBar, useToast } from "../components/ui";
+import { Avatar, Button, LikeButton, Mascot, TopBar, useToast } from "../components/ui";
 
 /** Znajduje cytat w tekście mimo różnic w białych znakach. Zwraca [start, end] albo null. */
 function findQuote(text: string, quote: string): [number, number] | null {
@@ -214,6 +214,14 @@ export default function Story() {
         <div className="mb-4 flex items-center gap-2 text-sm font-bold text-muted">
           <span className="rounded-full bg-card px-2 py-0.5 ring-1 ring-line">{AGE_LABELS[story.age_group]}</span>
           <span>{etapy(story.segment_count)} sztafety</span>
+          <span className="ml-auto">
+            <LikeButton
+              storyId={story.id}
+              count={story.like_count}
+              liked={story.liked_by_me}
+              onChange={(l) => setStory((prev) => prev && { ...prev, ...l })}
+            />
+          </span>
         </div>
 
         <ol className="flex flex-col gap-4">
