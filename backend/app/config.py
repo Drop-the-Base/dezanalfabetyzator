@@ -21,10 +21,11 @@ class Settings(BaseSettings):
     groq_moderation_model: str = ""
     llm_timeout_s: float = 20.0
 
-    # Na Vercelu bez DATABASE_URL: SQLite w /tmp (dane ulotne — docelowo Neon Postgres).
+    # Na Vercelu bez DATABASE_URL i POSTGRES_URL: SQLite w /tmp (dane ulotne — docelowo Supabase Postgres).
     database_url: str = (
         "sqlite:////tmp/app.db" if os.environ.get("VERCEL") else f"sqlite:///{(BACKEND / 'data' / 'app.db').as_posix()}"
     )
+    postgres_url: str = ""  # ustawia integracja Supabase na Vercelu; używane, gdy DATABASE_URL to SQLite
     cors_origins: str = "http://localhost:5173"
 
 
