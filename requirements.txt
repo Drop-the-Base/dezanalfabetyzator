@@ -1,0 +1,6 @@
+# Zależności funkcji Python na Vercelu (api/index.py). Trzymać w zgodzie z backend/pyproject.toml.
+fastapi>=0.142.2
+groq>=1.7.0
+psycopg[binary]>=3.3.6
+pydantic-settings>=2.15.0
+sqlmodel>=0.0.47
