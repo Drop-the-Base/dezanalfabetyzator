@@ -1,7 +1,16 @@
-﻿# Dezanalfabetyzator
+# Dezanalfabetyzator
 
-HackYeah 2026 — zadanie otwarte **Artificial Intelligence**.
+HackYeah 2026 — zadanie otwarte **Artificial Intelligence** · zespół **Drop the Base**
 
-Aplikacja wspierająca dzieci i młodzież (7–18 lat) w czytaniu ze zrozumieniem — AI, które nie daje gotowych odpowiedzi, tylko uczy szukać dowodów w tekście.
+Wspólne pisanie historyjek przez dzieci i młodzież (7–18 lat). Dziecko czyta fragment napisany przez kogoś innego (lub przez AI) i dopisuje kontynuację. AI:
 
-> Status: faza koncepcyjna, brak kodu (praca nad kodem rozpoczyna się wraz ze startem hackathonu).
+1. **moderuje** treści (wulgaryzmy, nieodpowiednie tematy) przed publikacją,
+2. **zaczyna** historie dopasowane do wieku,
+3. **sprawdza zrozumienie**: czy kontynuacja nawiązuje do tego, co było wcześniej, i komentuje z cytatem z tekstu.
+
+Każdą decyzję AI można zakwestionować („Nie zgadzam się”), a nauczyciel ma panel do nadzoru.
+
+- Architektura: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Plan prac: [Issues](https://github.com/Drop-the-Base/dezanalfabetyzator/issues)
+
+> Status: planowanie. Kod aplikacji powstaje w trakcie hackathonu (od 3.10.2026, 23:00).

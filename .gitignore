@@ -1,4 +1,47 @@
-﻿*.pdf
+# Materiały organizatora (lokalnie)
+*.pdf
+
+# Sekrety
 .env
 .env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Baza danych (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+
+# Node / frontend
 node_modules/
+dist/
+build/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+
+# Frontend zbudowany do serwowania przez backend
+backend/static/
+
+# IDE / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logi
+*.log
