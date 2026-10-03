@@ -1,0 +1,46 @@
+name: Deploy na Vercel (produkcja)
+
+# Projekt na Vercelu nie ma podpiętej integracji z GitHubem, więc wdrażamy z CI po każdym pushu na main.
+# Wymagane sekrety repo (Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN       — token z vercel.com/account/tokens (konto właściciela projektu)
+#   VERCEL_ORG_ID      — "orgId" z .vercel/project.json po `vercel link`
+#   VERCEL_PROJECT_ID  — "projectId" z .vercel/project.json po `vercel link`
+# Bez sekretów workflow się pomija (zielony status, brak deployu).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Sprawdź sekrety
+        id: check
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "Brak sekretów VERCEL_* — pomijam deploy."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.skip != 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.skip != 'true'
+        with:
+          node-version: 20
+      - name: Deploy
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          npm i -g vercel@latest
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
