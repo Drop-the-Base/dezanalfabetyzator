@@ -109,8 +109,9 @@ check(bool((r.get("comprehension") or {}).get("evidence")), "Zosia: jest cytat-d
 check(bool(r.get("ai_segment")), "Zosia: narrator AI dopisał ciąg dalszy (AI → dziecko → AI)")
 
 r = post(kuba, sid, "kuba_off")
-check((r.get("segment") or {}).get("status") == "rejected", "Kuba: fragment nie na temat wraca do poprawy")
-check((r.get("comprehension") or {}).get("score", 100) < 50, "Kuba: niska ocena zrozumienia")
+check((r.get("segment") or {}).get("status") == "approved", "Kuba: fragment nie na temat i tak wchodzi do historii")
+check((r.get("comprehension") or {}).get("score", 100) < 50, "Kuba: niska ocena zrozumienia + wskazówka")
+check(bool((r.get("comprehension") or {}).get("strengths")), "Kuba: mimo to dostaje pochwałę")
 
 r = post(maja, sid, "maja_bad")
 check((r.get("moderation") or {}).get("verdict") == "reject", "Maja: wulgaryzm odrzucony")

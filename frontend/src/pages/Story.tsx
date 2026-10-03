@@ -33,9 +33,17 @@ function Highlighted({ text, quote, markRef }: { text: string; quote: string; ma
 
 const VERDICT = {
   understood: { label: "Przeczytane ze zrozumieniem!", stars: 3, tone: "bg-good-soft text-good" },
-  partially: { label: "Prawie! Coś umknęło", stars: 2, tone: "bg-mid-soft text-mid" },
-  not_understood: { label: "Hmm, to się nie łączy", stars: 1, tone: "bg-bad-soft text-bad" },
+  partially: { label: "Dobry trop! Prawie wszystko się łączy", stars: 2, tone: "bg-mid-soft text-mid" },
+  not_understood: { label: "Nowy zwrot akcji!", stars: 1, tone: "bg-mid-soft text-mid" },
 } as const;
+
+// Pochwała na start — każde dopisanie się liczy.
+const PRAISE = [
+  "🎉 Brawo, pałeczka przekazana!",
+  "🌟 Super, historia rośnie dzięki Tobie!",
+  "🚀 Świetnie, Twój fragment już jest w historii!",
+  "👏 Ekstra, dopisałeś(-aś) swój kawałek!",
+];
 
 function LeaveButton({ onLeave }: { onLeave: () => void }) {
   return (
@@ -75,40 +83,15 @@ function ResultCard({
   }
   const c: Review | null = result.comprehension;
   const v = c ? VERDICT[c.verdict as keyof typeof VERDICT] ?? VERDICT.partially : null;
-  if (result.segment?.status === "rejected") {
-    // Fragment nie łączy się z historią — wraca do autora do poprawy.
-    return (
-      <div className="animate-pop rounded-3xl bg-mid-soft p-5">
-        <div className="flex items-start gap-3">
-          <Mascot size={52} />
-          <div className="min-w-0 flex-1">
-            <p className="font-black text-mid">Hmm, to się jeszcze nie łączy z historią</p>
-            {c && <p className="mt-1 font-semibold">{c.reason}</p>}
-          </div>
-        </div>
-        {c?.evidence && (
-          <button onClick={onShowEvidence} className="mt-4 w-full rounded-2xl bg-card p-3 text-left text-sm font-semibold">
-            <span className="block text-xs font-black uppercase tracking-wide text-mid">Przeczytaj jeszcze raz ten fragment</span>
-            „{c.evidence}”
-            <span className="mt-1 block text-xs font-extrabold text-mid">Pokaż w historii ↑</span>
-          </button>
-        )}
-        <Button className="mt-4 w-full" onClick={onClose}>
-          Poprawię i spróbuję jeszcze raz ✏️
-        </Button>
-        <LeaveButton onLeave={onLeave} />
-      </div>
-    );
-  }
+  const weak = c?.verdict === "not_understood";
+  const praise = PRAISE[(result.segment?.id ?? 0) % PRAISE.length];
   return (
     <div className="animate-pop rounded-3xl bg-card p-5 shadow-lg ring-1 ring-line">
       <div className="flex items-start gap-3">
         <Mascot size={52} />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-extrabold text-good">✓ Twój fragment jest w historii!</p>
-          {result.ai_segment && (
-            <p className="mt-1 text-sm font-bold text-ai">🦉 Sowa dopisała już ciąg dalszy — przeczytaj go, zanim ktoś przejmie pałeczkę.</p>
-          )}
+          <p className="text-lg font-black text-good">{praise}</p>
+          {c?.strengths && <p className="mt-1 font-bold">🌟 {c.strengths}</p>}
           {c && v && (
             <>
               <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-black ${v.tone}`}>
@@ -116,8 +99,15 @@ function ResultCard({
                 {v.label}
               </div>
               <p className="mt-2 font-semibold">{c.reason}</p>
-              {c.strengths && <p className="mt-1 text-sm text-muted">👍 {c.strengths}</p>}
             </>
+          )}
+          {result.ai_segment && (
+            <p className="mt-2 text-sm font-bold text-ai">🦉 Sowa dopisała już ciąg dalszy — przeczytaj go, zanim ktoś przejmie pałeczkę.</p>
+          )}
+          {weak && (
+            <p className="mt-2 text-sm text-muted">
+              Inni czytelnicy mogą zaproponować poprawki w zakładce „✍️ Poprawki” — to też część zabawy.
+            </p>
           )}
         </div>
       </div>
@@ -126,7 +116,9 @@ function ResultCard({
           onClick={onShowEvidence}
           className="mt-4 w-full rounded-2xl bg-mid-soft p-3 text-left text-sm font-semibold"
         >
-          <span className="block text-xs font-black uppercase tracking-wide text-mid">Na tym oparłam ocenę</span>
+          <span className="block text-xs font-black uppercase tracking-wide text-mid">
+            {weak ? "Następnym razem możesz nawiązać do" : "Na tym oparłam ocenę"}
+          </span>
           „{c.evidence}”
           <span className="mt-1 block text-xs font-extrabold text-mid">Pokaż w historii ↑</span>
         </button>

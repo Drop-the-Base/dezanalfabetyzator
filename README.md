@@ -129,7 +129,7 @@ Historia jest w pełni widoczna w `git log` (commity mają znaczniki czasu). W s
 
 **Jak użytkownik weryfikuje wynik AI:**
 - Ocena zrozumienia zawsze wskazuje **dosłowny cytat** z wcześniejszego tekstu. Backend odrzuca cytat, którego nie ma w tekście (ochrona przed halucynacją), a frontend podświetla go w historii — dziecko lub nauczyciel widzi, na czym AI oparło ocenę, i sam ocenia, czy ma ona sens.
-- Fragment, który w ogóle nie łączy się z historią, wraca do autora do poprawy (z cytatem, do czego nawiązać); „częściowo” przechodzi.
+- Ocena zrozumienia nigdy nie blokuje: każdy fragment dostaje pochwałę, a mniej spójny — wskazówkę z cytatem i trafia do „Do poprawienia”. Blokuje wyłącznie moderacja (treści obraźliwe i niestosowne).
 - Pełny zapis decyzji AI (`GET /api/segments/{id}/reviews`) pozwala sprawdzić model, werdykt i uzasadnienie.
 
 **Ograniczenia:**
