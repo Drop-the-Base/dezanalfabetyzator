@@ -28,16 +28,18 @@ Na ekranie logowania są gotowe profile demo (jedno kliknięcie). Kuba i Maja pr
 2. **Zosia** otwiera „Smok, który bał się ciemności” i wkleja `zosia_ok`:
    > Fafik zadrżał, bo bez latarenki w jaskini zrobiło się całkiem ciemno, a pukanie było coraz głośniejsze. Wtedy przypomniał sobie, że przecież jest smokiem i umie ziać ogniem! Dmuchnął ostrożnie i w świetle małego płomyka zobaczył jeżyka, który zgubił drogę do domu.
 
-   Oczekiwane: ocena ~90, pochwała, **podświetlony cytat** o zgasłej latarence i pukaniu. Fragment pojawia się na żywo u Kuby i Mai.
+   Oczekiwane: ocena ~90, pochwała, **podświetlony cytat** o zgasłej latarence i pukaniu. Zaraz pod spodem **Sowa AI dopisuje swój ciąg dalszy** (historia przeplata się: AI → dziecko → AI). Oba fragmenty pojawiają się na żywo u Kuby i Mai.
 3. **Kuba** wkleja `kuba_off` (mecz Legii z Lechem, kebab, FIFA).
-   Oczekiwane: fragment **opublikowany** (AI doradza, nie cenzuruje), ocena ~10, życzliwa podpowiedź, cytat z wcześniejszego tekstu — „do tego warto było nawiązać”.
+   Oczekiwane: fragment **nie wchodzi do historii** — karta „Hmm, to się jeszcze nie łączy”, ocena ~10, życzliwa podpowiedź i podświetlony cytat, do czego nawiązać. Tekst zostaje w polu — Kuba może go poprawić i wysłać ponownie.
 4. **Maja** wkleja `maja_bad` (wulgaryzm).
    Oczekiwane: odrzucone przez listę słów, bez cytowania brzydkiego słowa, z przyjaznym komunikatem.
 5. *(opcjonalnie)* **Maja** wkleja `maja_private` (adres + telefon + „nie mów rodzicom”).
    Oczekiwane: odrzucone przez LLM (`dane_osobowe`) — tego lista słów by nie złapała.
 6. **Maja** wkleja `maja_ok` → opublikowane, wysoka ocena. Sztafeta idzie dalej.
 
-Zasada sztafety: ta sama osoba nie może dopisać dwóch fragmentów pod rząd (409 „Teraz kolej kogoś innego!”).
+Zasada sztafety: ta sama osoba nie może dopisać dwóch „ludzkich” fragmentów z rzędu — między nimi musi pisać ktoś inny (409 „Teraz kolej kogoś innego!”). Fragmenty AI się nie liczą.
+
+Uwaga: po każdym zaakceptowanym fragmencie AI dopisuje swój, więc przed wklejeniem kolejnego tekstu warto przeczytać na głos fragment Sowy — to dobry moment w pitchu.
 
 ## Gdy coś pada
 | Problem | Co robimy |

@@ -4,7 +4,7 @@ import re
 
 from pydantic import BaseModel
 
-from app.ai.schemas import ComprehensionResult, ModerationResult, StoryStart
+from app.ai.schemas import ComprehensionResult, ModerationResult, StoryContinuation, StoryStart
 
 STOP = set(
     "i a w z na do że się nie to jest był była było jak ale co po od o u za przez dla też już tak tylko "
@@ -67,6 +67,13 @@ class MockProvider:
         if schema is StoryStart:
             age = _section(user, "age_group") or "7-10"
             return STARTERS.get(age, STARTERS["7-10"]).model_copy()
+        if schema is StoryContinuation:
+            return StoryContinuation(
+                text=(
+                    "Nagle w oddali coś zabłysło, jakby ktoś zapalił malutkie światełko. "
+                    "Wszyscy zamarli i nasłuchiwali. Kto mógł tam być o tej porze?"
+                )
+            )
         if schema is ComprehensionResult:
             return self._comprehension(_section(user, "previous"), _section(user, "new"))
         raise ValueError(f"MockProvider: nieznany schemat {schema}")

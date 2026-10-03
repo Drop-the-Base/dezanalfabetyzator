@@ -4,7 +4,7 @@ import logging
 import re
 
 from app.ai.provider import LLMError, get_provider, load_prompt
-from app.ai.schemas import ComprehensionResult, ModerationResult, StoryStart
+from app.ai.schemas import ComprehensionResult, ModerationResult, StoryContinuation, StoryStart
 from app.ai.wordlist import find_profanity
 from app.config import get_settings
 
@@ -66,6 +66,17 @@ def start_story(age_group: str, theme: str) -> StoryStart:
     )
 
 
+def continue_story(story_text: str, age_group: str) -> str:
+    """Fragment narratora AI po fragmencie dziecka (historia przeplata się: AI → dziecko → AI …)."""
+    r = get_provider().complete_json(
+        "continue",
+        _fill(load_prompt("continue"), age_group=age_group),
+        f"<age_group>{age_group}</age_group>\n<story>\n{story_text}\n</story>",
+        StoryContinuation,
+    )
+    return r.text.strip()
+
+
 def _norm_ws(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
@@ -99,4 +110,4 @@ def assess_comprehension(previous: str, new: str, age_group: str) -> Comprehensi
     return r
 
 
-__all__ = ["LLMError", "moderate", "start_story", "assess_comprehension", "provider_name"]
+__all__ = ["LLMError", "moderate", "start_story", "assess_comprehension", "continue_story", "provider_name"]

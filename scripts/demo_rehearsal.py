@@ -83,9 +83,10 @@ sid = r["story_id"]
 r = post(zosia, sid, "zosia_ok")
 check((r.get("comprehension") or {}).get("score", 0) >= 70, "Zosia: wysoka ocena zrozumienia")
 check(bool((r.get("comprehension") or {}).get("evidence")), "Zosia: jest cytat-dowód z tekstu")
+check(bool(r.get("ai_segment")), "Zosia: narrator AI dopisał ciąg dalszy (AI → dziecko → AI)")
 
 r = post(kuba, sid, "kuba_off")
-check((r.get("segment") or {}).get("status") == "approved", "Kuba: fragment opublikowany (ocena nie blokuje)")
+check((r.get("segment") or {}).get("status") == "rejected", "Kuba: fragment nie na temat wraca do poprawy")
 check((r.get("comprehension") or {}).get("score", 100) < 50, "Kuba: niska ocena zrozumienia")
 
 r = post(maja, sid, "maja_bad")

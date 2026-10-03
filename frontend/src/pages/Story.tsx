@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { api, ApiError, type Review, type StoryDetail, type SubmitResult } from "../lib/api";
+import { api, ApiError, type Review, type Segment, type StoryDetail, type SubmitResult } from "../lib/api";
 import { AGE_LABELS, MAX_LEN, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
@@ -53,12 +53,39 @@ function ResultCard({ result, onShowEvidence, onClose }: { result: SubmitResult;
   }
   const c: Review | null = result.comprehension;
   const v = c ? VERDICT[c.verdict as keyof typeof VERDICT] ?? VERDICT.partially : null;
+  if (result.segment?.status === "rejected") {
+    // Fragment nie łączy się z historią — wraca do autora do poprawy.
+    return (
+      <div className="animate-pop rounded-3xl bg-mid-soft p-5">
+        <div className="flex items-start gap-3">
+          <Mascot size={52} />
+          <div className="min-w-0 flex-1">
+            <p className="font-black text-mid">Hmm, to się jeszcze nie łączy z historią</p>
+            {c && <p className="mt-1 font-semibold">{c.reason}</p>}
+          </div>
+        </div>
+        {c?.evidence && (
+          <button onClick={onShowEvidence} className="mt-4 w-full rounded-2xl bg-card p-3 text-left text-sm font-semibold">
+            <span className="block text-xs font-black uppercase tracking-wide text-mid">Przeczytaj jeszcze raz ten fragment</span>
+            „{c.evidence}”
+            <span className="mt-1 block text-xs font-extrabold text-mid">Pokaż w historii ↑</span>
+          </button>
+        )}
+        <Button className="mt-4 w-full" onClick={onClose}>
+          Poprawię i spróbuję jeszcze raz ✏️
+        </Button>
+      </div>
+    );
+  }
   return (
     <div className="animate-pop rounded-3xl bg-card p-5 shadow-lg ring-1 ring-line">
       <div className="flex items-start gap-3">
         <Mascot size={52} />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-extrabold text-good">✓ Pałeczka przekazana! Twój fragment jest w historii.</p>
+          <p className="text-sm font-extrabold text-good">✓ Twój fragment jest w historii!</p>
+          {result.ai_segment && (
+            <p className="mt-1 text-sm font-bold text-ai">🦉 Sowa dopisała już ciąg dalszy — przeczytaj go, zanim ktoś przejmie pałeczkę.</p>
+          )}
           {c && v && (
             <>
               <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-black ${v.tone}`}>
@@ -107,23 +134,35 @@ export default function Story() {
     api.story(storyId).then(setStory).catch((e) => setError((e as Error).message));
   }, [storyId]);
 
-  useLive(({ segments }) => {
-    const mine = segments.filter((s) => s.story_id === storyId);
-    if (!mine.length) return;
+  const addSegments = (incoming: Segment[]) =>
     setStory((prev) => {
       if (!prev) return prev;
       const have = new Set(prev.segments.map((s) => s.id));
-      const add = mine.filter((s) => !have.has(s.id));
+      const add = incoming.filter((s) => s.story_id === prev.id && s.status === "approved" && !have.has(s.id));
       if (!add.length) return prev;
-      add.filter((s) => s.author.id !== user?.id).forEach((s) => toast(`${s.author.nick} przejął(-ęła) pałeczkę!`, "🏃"));
-      setNewIds((n) => new Set([...n, ...add.map((s) => s.id)]));
       const segments = [...prev.segments, ...add].sort((a, b) => a.position - b.position);
       const authors = [...prev.authors];
       add.forEach((s) => {
         if (!authors.some((a) => a.id === s.author.id)) authors.push(s.author);
       });
-      return { ...prev, segments, authors, segment_count: segments.length, last_author_id: segments[segments.length - 1].author.id };
+      const lastHuman = [...segments].reverse().find((s) => !s.author.is_ai);
+      return {
+        ...prev,
+        segments,
+        authors,
+        segment_count: segments.length,
+        last_author_id: segments[segments.length - 1].author.id,
+        last_human_author_id: lastHuman?.author.id ?? null,
+      };
     });
+
+  useLive(({ segments }) => {
+    const fresh = segments.filter((s) => s.story_id === storyId && !story?.segments.some((x) => x.id === s.id));
+    fresh
+      .filter((s) => !s.author.is_ai && s.author.id !== user?.id)
+      .forEach((s) => toast(`${s.author.nick} przejął(-ęła) pałeczkę!`, "🏃"));
+    if (fresh.length) setNewIds((n) => new Set([...n, ...fresh.map((s) => s.id)]));
+    addSegments(fresh);
   });
 
   const showEvidence = () => {
@@ -137,21 +176,13 @@ export default function Story() {
     try {
       const r = await api.addSegment(story.id, text);
       setResult(r);
-      if (r.moderation.verdict === "ok" && r.segment) {
+      setQuote(r.comprehension?.evidence ?? "");
+      if (r.segment?.status === "rejected" && r.comprehension?.evidence) showEvidence();
+      if (r.moderation.verdict === "ok" && r.segment?.status === "approved") {
         setText("");
-        setQuote(r.comprehension?.evidence ?? "");
-        const seg = r.segment;
-        setStory((prev) =>
-          prev && !prev.segments.some((s) => s.id === seg.id)
-            ? {
-                ...prev,
-                segments: [...prev.segments, seg],
-                segment_count: prev.segment_count + 1,
-                last_author_id: seg.author.id,
-                authors: prev.authors.some((a) => a.id === seg.author.id) ? prev.authors : [...prev.authors, seg.author],
-              }
-            : prev && { ...prev, last_author_id: seg.author.id },
-        );
+        const added = [r.segment, ...(r.ai_segment ? [r.ai_segment] : [])];
+        setNewIds((n) => new Set([...n, ...added.map((x) => x.id)]));
+        addSegments(added);
       }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Brak połączenia. Spróbuj jeszcze raz.");
@@ -172,7 +203,7 @@ export default function Story() {
   }
 
   const max = user ? MAX_LEN[user.age_group] : 800;
-  const myTurn = story.last_author_id !== user?.id;
+  const myTurn = story.last_human_author_id !== user?.id;
   // Cytat podświetlamy tylko we fragmentach PRZED najnowszym fragmentem użytkownika
   const lastMine = result?.segment?.id;
 
@@ -232,7 +263,7 @@ export default function Story() {
             (busy ? (
               <div className="flex items-center gap-3 rounded-3xl bg-ai-soft p-5">
                 <Mascot size={52} thinking />
-                <p className="font-bold text-ai">Czytam Twój fragment i sprawdzam, czy pasuje do historii…</p>
+                <p className="font-bold text-ai">Czytam Twój fragment, sprawdzam, czy pasuje do historii, i dopisuję swój ciąg dalszy…</p>
               </div>
             ) : myTurn ? (
               <div className="rounded-3xl bg-card p-4 shadow-sm ring-2 ring-baton">
@@ -262,7 +293,7 @@ export default function Story() {
               <div className="flex items-center gap-3 rounded-3xl bg-card p-5 ring-1 ring-line">
                 <span className="text-3xl">⏳</span>
                 <p className="font-semibold text-muted">
-                  Twój fragment jest ostatni. Poczekaj, aż ktoś inny przejmie pałeczkę — zobaczysz to tutaj na żywo!
+                  Twój fragment jest ostatni z dzieci. Poczekaj, aż ktoś inny przejmie pałeczkę — zobaczysz to tutaj na żywo!
                 </p>
               </div>
             ))}

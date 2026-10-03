@@ -14,6 +14,10 @@ class StoryStart(BaseModel):
     text: str
 
 
+class StoryContinuation(BaseModel):
+    text: str
+
+
 class ComprehensionResult(BaseModel):
     score: int = Field(ge=0, le=100)
     verdict: Literal["understood", "partially", "not_understood"]
