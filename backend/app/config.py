@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     postgres_url: str = ""  # ustawia integracja Supabase na Vercelu; używane, gdy DATABASE_URL to SQLite
     cors_origins: str = "http://localhost:5173"
     reset_pin: str = ""  # PIN do POST /api/admin/reset (tryb jury); puste = reset wyłączony
+    session_secret: str = ""  # klucz podpisu tokenów sesji (na produkcji ustawić; puste = klucz deweloperski)
 
 
 @lru_cache

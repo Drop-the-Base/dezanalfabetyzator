@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sqlmodel import select
 
-from app.api.deps import SessionDep, UserDep
+from app.api.deps import SessionDep, UserDep, sign_token
 from app.api.dto import UserOut, user_out
 from app.models import AgeGroup, User
 
@@ -34,6 +34,7 @@ def demo_login(body: DemoLogin, session: SessionDep):
         user.avatar, user.age_group = body.avatar, body.age_group
     else:
         user = User(nick=nick, avatar=body.avatar, age_group=body.age_group)
+    user.token = sign_token(nick, body.avatar, body.age_group)
     session.add(user)
     session.commit()
     session.refresh(user)

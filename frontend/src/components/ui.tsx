@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { api, type Author, type LikeState } from "../lib/api";
 import { APP_NAME, AVATARS } from "../lib/brand";
 import { useSession } from "../lib/session";
+import { JuryToggle } from "./jury";
 
 /** Sowa — głos AI w aplikacji. */
 export function Mascot({ size = 56, thinking = false }: { size?: number; thinking?: boolean }) {
@@ -78,14 +79,15 @@ export function TopBar({ back, title }: { back?: string; title?: string }) {
           </span>
         )}
         <h1 className="min-w-0 flex-1 truncate text-lg font-black tracking-tight">{title ?? APP_NAME}</h1>
+        <JuryToggle />
         {user && (
           <button
             onClick={logout}
-            className="flex items-center gap-2 rounded-full bg-card py-1 pl-1 pr-3 text-sm font-bold shadow-sm"
-            title="Wyloguj"
+            className="flex shrink-0 items-center gap-2 rounded-full bg-card p-1 text-sm font-bold shadow-sm sm:pr-3"
+            title={`${user.nick} — wyloguj`}
           >
             <Avatar author={{ avatar: user.avatar, is_ai: false }} size="sm" />
-            {user.nick}
+            <span className="hidden sm:inline">{user.nick}</span>
           </button>
         )}
       </div>

@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { api } from "../lib/api";
-import { JURY } from "../lib/brand";
-import { useSession } from "../lib/session";
 import { Button, useToast } from "./ui";
 
 /** Panel trybu jury: krótka instrukcja + reset bazy do historii demo (PIN z RESET_PIN). */
 export default function JuryPanel({ onReset }: { onReset: () => void }) {
-  const { login } = useSession();
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const [pin, setPin] = useState("");
@@ -19,8 +16,7 @@ export default function JuryPanel({ onReset }: { onReset: () => void }) {
     setError("");
     try {
       const res = await api.resetDemo(pin.trim());
-      // Reset usuwa też konta — logujemy jury od nowa.
-      await login(JURY.nick, JURY.avatar, JURY.age);
+      // Reset usuwa też konta — podpisany token odtworzy je przy kolejnym zapytaniu.
       onReset();
       setOpen(false);
       setPin("");
@@ -39,6 +35,8 @@ export default function JuryPanel({ onReset }: { onReset: () => void }) {
         <li>Wybierz historię z listy (każda grupa wiekowa ma swoje) i przeczytaj ją.</li>
         <li>Dopisz ciąg dalszy — Sowa AI oceni, czy zrozumiałeś(-aś) tekst, i pokaże cytat.</li>
         <li>Spróbuj tekstu nie na temat albo niegrzecznego — zobacz, jak AI życzliwie go zatrzyma.</li>
+        <li>„🔥 Na topie” — najpopularniejsze historie tylko do czytania i dawania serduszek.</li>
+        <li>„✍️ Poprawki” — zaznacz kawałek cudzego tekstu, wpisz poprawkę, a AI oceni, czy pasuje do historii.</li>
       </ul>
 
       {!open ? (
