@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api, ApiError, type Review, type Segment, type StoryDetail, type SubmitResult } from "../lib/api";
 import { AGE_LABELS, MAX_LEN, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
@@ -36,7 +36,25 @@ const VERDICT = {
   not_understood: { label: "Hmm, to się nie łączy", stars: 1, tone: "bg-bad-soft text-bad" },
 } as const;
 
-function ResultCard({ result, onShowEvidence, onClose }: { result: SubmitResult; onShowEvidence: () => void; onClose: () => void }) {
+function LeaveButton({ onLeave }: { onLeave: () => void }) {
+  return (
+    <Button variant="ghost" className="mt-2 w-full" onClick={onLeave}>
+      Wyjdź z historii
+    </Button>
+  );
+}
+
+function ResultCard({
+  result,
+  onShowEvidence,
+  onClose,
+  onLeave,
+}: {
+  result: SubmitResult;
+  onShowEvidence: () => void;
+  onClose: () => void;
+  onLeave: () => void;
+}) {
   if (result.moderation.verdict === "reject") {
     return (
       <div className="animate-pop rounded-3xl bg-bad-soft p-5">
@@ -50,6 +68,7 @@ function ResultCard({ result, onShowEvidence, onClose }: { result: SubmitResult;
         <Button variant="ghost" className="mt-4 w-full" onClick={onClose}>
           Poprawię swój tekst
         </Button>
+        <LeaveButton onLeave={onLeave} />
       </div>
     );
   }
@@ -76,6 +95,7 @@ function ResultCard({ result, onShowEvidence, onClose }: { result: SubmitResult;
         <Button className="mt-4 w-full" onClick={onClose}>
           Poprawię i spróbuję jeszcze raz ✏️
         </Button>
+        <LeaveButton onLeave={onLeave} />
       </div>
     );
   }
@@ -120,6 +140,7 @@ function ResultCard({ result, onShowEvidence, onClose }: { result: SubmitResult;
 export default function Story() {
   const { id } = useParams();
   const storyId = Number(id);
+  const navigate = useNavigate();
   const { user } = useSession();
   const toast = useToast();
   const [story, setStory] = useState<StoryDetail | null>(null);
@@ -316,6 +337,7 @@ export default function Story() {
                 setResult(null);
                 setQuote("");
               }}
+              onLeave={() => navigate("/")}
             />
           )}
 
