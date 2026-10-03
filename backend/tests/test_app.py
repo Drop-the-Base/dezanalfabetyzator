@@ -79,9 +79,13 @@ def test_full_relay_flow(client):
     first_text = client.get(f"/api/stories/{sid}", headers=zosia).json()["segments"][0]["text"]
     assert r["comprehension"]["evidence"] in first_text
 
-    # Ta sama osoba dwa razy pod rząd → blokada (sztafeta!)
-    r2 = client.post(f"/api/stories/{sid}/segments", json={"text": "I jeszcze jedno zdanie ode mnie."}, headers=zosia)
-    assert r2.status_code == 409
+    # Ta sama osoba może od razu pisać dalej — między jej fragmentami odpowiada AI
+    r2 = client.post(
+        f"/api/stories/{sid}/segments",
+        json={"text": "Smok Fafik poszedł dalej w ciemności jaskini, bo pukanie nie ustawało."},
+        headers=zosia,
+    )
+    assert r2.status_code == 200 and r2.json()["segment"]["status"] == "approved"
 
     # Oderwana kontynuacja → i tak wchodzi do historii (blokuje tylko moderacja); AI chwali i podpowiada
     r3 = client.post(
@@ -99,9 +103,9 @@ def test_full_relay_flow(client):
     detail = client.get(f"/api/stories/{sid}", headers=zosia).json()
     # Historia się przeplata: AI → dziecko → AI → dziecko → AI
     assert [seg["author"]["nick"] for seg in detail["segments"]] == [
-        "Narrator AI", "Zosia", "Narrator AI", "Kuba", "Narrator AI"
+        "Narrator AI", "Zosia", "Narrator AI", "Zosia", "Narrator AI", "Kuba", "Narrator AI"
     ]
-    assert detail["last_human_author_id"] == detail["segments"][3]["author"]["id"]
+    assert detail["last_human_author_id"] == detail["segments"][5]["author"]["id"]
 
 
 def test_updates_polling(client):

@@ -12,7 +12,7 @@ export default function JuryPanel() {
           Spróbuj tekstu zupełnie nie na temat albo niegrzecznego — AI życzliwie go zatrzyma. Fragment, który ma choć
           trochę sensu, wchodzi do historii i trafia do „Do poprawienia”.
         </li>
-        <li>„🔥 Na topie” — najpopularniejsze historie tylko do czytania i dawania serduszek.</li>
+        <li>„🔥 Na topie” — najpopularniejsze historie — czytaj, dawaj serduszka i dopisuj dalej.</li>
         <li>„✍️ Poprawki” — zaznacz kawałek cudzego tekstu, wpisz poprawkę, a AI oceni, czy pasuje do historii.</li>
         <li>„🔄 Reset” (na górze każdej strony) przywraca historie demo.</li>
       </ul>

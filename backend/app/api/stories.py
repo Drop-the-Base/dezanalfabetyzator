@@ -188,19 +188,8 @@ def add_segment(story_id: int, body: NewSegment, session: SessionDep, user: User
     story = _get_story(session, story_id)
     text = _check_len(body.text, user)
 
-    # Sztafeta: między fragmentami AI piszą różne dzieci — nie ta sama osoba dwa razy z rzędu.
-    last_human = session.exec(
-        select(Segment)
-        .where(
-            Segment.story_id == story_id,
-            Segment.status == SegmentStatus.approved,
-            col(Segment.author_id).is_not(None),
-        )
-        .order_by(col(Segment.position).desc())
-    ).first()
-    if last_human and last_human.author_id == user.id:
-        raise HTTPException(409, "Teraz kolej kogoś innego! Poczekaj, aż ktoś przejmie pałeczkę.")
-
+    # Bez blokady „kolej kogoś innego”: po każdym fragmencie dziecka i tak odpowiada narrator AI,
+    # więc każdy może zawsze wrócić do historii i pisać dalej (także po słabej ocenie).
     previous = _story_text(session, story_id)
     mod, source = ai.moderate(text, user.age_group)
     seg = Segment(

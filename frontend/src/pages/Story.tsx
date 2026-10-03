@@ -102,7 +102,7 @@ function ResultCard({
             </>
           )}
           {result.ai_segment && (
-            <p className="mt-2 text-sm font-bold text-ai">🦉 Sowa dopisała już ciąg dalszy — przeczytaj go, zanim ktoś przejmie pałeczkę.</p>
+            <p className="mt-2 text-sm font-bold text-ai">🦉 Sowa dopisała już ciąg dalszy — przeczytaj go i pisz dalej albo przekaż pałeczkę innym.</p>
           )}
           {weak && (
             <p className="mt-2 text-sm text-muted">
@@ -134,10 +134,9 @@ export default function Story() {
   const { id } = useParams();
   const storyId = Number(id);
   const navigate = useNavigate();
-  // Z zakładki „Na topie”: tylko czytanie, serduszka i poprawki — bez dopisywania.
+  // Z zakładki „Na topie” wracamy tam strzałką; dopisywać można wszędzie.
   const [params] = useSearchParams();
-  const readOnly = params.has("czytaj");
-  const back = readOnly ? "/na-topie" : "/";
+  const back = params.has("czytaj") ? "/na-topie" : "/";
   const { user } = useSession();
   const toast = useToast();
   const [story, setStory] = useState<StoryDetail | null>(null);
@@ -245,7 +244,7 @@ export default function Story() {
   }
 
   const max = user ? MAX_LEN[user.age_group] : 800;
-  const myTurn = story.last_human_author_id !== user?.id;
+  const iWroteLast = story.last_human_author_id === user?.id;
   // Cytat podświetlamy tylko we fragmentach PRZED najnowszym fragmentem użytkownika
   const lastMine = result?.segment?.id;
 
@@ -338,31 +337,21 @@ export default function Story() {
             />
           )}
 
-          {readOnly && (
-            <div className="flex items-start gap-3 rounded-3xl bg-card p-5 ring-1 ring-line">
-              <span className="text-3xl">📖</span>
-              <p className="font-semibold text-muted">
-                Ta historia jest <b>na topie</b> — można ją czytać i oceniać serduszkiem 🤍. Widzisz coś niespójnego?
-                Zaznacz ten kawałek tekstu i zaproponuj poprawkę.
-              </p>
-            </div>
-          )}
           <JuryHint>
             Poprawki: zaznacz kilka słów w cudzym fragmencie → „🤔 To nie jest spójne?” → wpisz swoją wersję. Na
             telefonie możesz też użyć „🔍 Zgłoś niespójność” pod fragmentem.
           </JuryHint>
 
-          {!readOnly &&
-            !result &&
+          {!result &&
             (busy ? (
               <div className="flex items-center gap-3 rounded-3xl bg-ai-soft p-5">
                 <Mascot size={52} thinking />
                 <p className="font-bold text-ai">Czytam Twój fragment, sprawdzam, czy pasuje do historii, i dopisuję swój ciąg dalszy…</p>
               </div>
-            ) : myTurn ? (
+            ) : (
               <div className="rounded-3xl bg-card p-4 shadow-sm ring-2 ring-baton">
                 <label htmlFor="cont" className="flex items-center gap-2 font-black">
-                  <span className="text-xl">🏃</span> Twoja kolej! Co było dalej?
+                  <span className="text-xl">🏃</span> {iWroteLast ? "Sowa odpowiedziała — pisz dalej!" : "Twoja kolej! Co było dalej?"}
                 </label>
                 <p className="mt-1 text-sm text-muted">Najpierw przeczytaj uważnie całą historię — sprawdzę, czy do niej nawiązujesz.</p>
                 <textarea
@@ -382,13 +371,6 @@ export default function Story() {
                 <Button className="mt-3 w-full" disabled={text.trim().length < 15} onClick={submit}>
                   Przekaż pałeczkę →
                 </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 rounded-3xl bg-card p-5 ring-1 ring-line">
-                <span className="text-3xl">⏳</span>
-                <p className="font-semibold text-muted">
-                  Twój fragment jest ostatni z dzieci. Poczekaj, aż ktoś inny przejmie pałeczkę — zobaczysz to tutaj na żywo!
-                </p>
               </div>
             ))}
         </section>

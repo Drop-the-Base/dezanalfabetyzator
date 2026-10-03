@@ -12,7 +12,7 @@ export default function Feed() {
   const { user } = useSession();
   const { jury } = useJury();
   const [stories, setStories] = useState<Story[] | null>(null);
-  const [onlyMine, setOnlyMine] = useState(false);
+  const [filter, setFilter] = useState<"all" | "age" | "mine">("all");
   const [fresh, setFresh] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -32,7 +32,9 @@ export default function Feed() {
   const setLike = (id: number, l: LikeState) =>
     setStories((prev) => prev && prev.map((s) => (s.id === id ? { ...s, ...l } : s)));
 
-  const list = (stories ?? []).filter((s) => !onlyMine || s.age_group === user?.age_group);
+  const list = (stories ?? []).filter((s) =>
+    filter === "age" ? s.age_group === user?.age_group : filter === "mine" ? s.authors.some((a) => a.id === user?.id) : true,
+  );
 
   return (
     <>
@@ -50,18 +52,21 @@ export default function Feed() {
         {jury && <JuryPanel />}
 
         <div className="mt-5 flex gap-2">
-          {[
-            [false, "Wszystkie"],
-            [true, `Dla mnie (${user ? AGE_LABELS[user.age_group] : ""})`],
-          ].map(([val, label]) => (
+          {(
+            [
+              ["all", "Wszystkie"],
+              ["age", `Dla mnie (${user ? AGE_LABELS[user.age_group] : ""})`],
+              ["mine", "✏️ Moje"],
+            ] as const
+          ).map(([val, label]) => (
             <button
-              key={String(val)}
-              onClick={() => setOnlyMine(val as boolean)}
+              key={val}
+              onClick={() => setFilter(val)}
               className={`rounded-full px-4 py-1.5 text-sm font-extrabold ${
-                onlyMine === val ? "bg-ink text-white" : "bg-card ring-2 ring-line"
+                filter === val ? "bg-ink text-white" : "bg-card ring-2 ring-line"
               }`}
             >
-              {label as string}
+              {label}
             </button>
           ))}
         </div>
@@ -71,11 +76,13 @@ export default function Feed() {
             [0, 1, 2].map((i) => <li key={i} className="h-28 animate-pulse rounded-3xl bg-card" />)}
           {stories && list.length === 0 && (
             <li className="rounded-3xl bg-card p-6 text-center font-semibold text-muted">
-              Jeszcze nie ma historii. Zacznij pierwszą!
+              {filter === "mine"
+                ? "Nie masz jeszcze swoich historii — dopisz coś albo zacznij nową!"
+                : "Jeszcze nie ma historii. Zacznij pierwszą!"}
             </li>
           )}
           {list.map((s) => {
-            const myTurn = s.last_human_author_id !== user?.id;
+            const mine = s.authors.some((a) => a.id === user?.id);
             return (
               <li key={s.id}>
                 <Link
@@ -106,13 +113,9 @@ export default function Feed() {
                         onChange={(l) => setLike(s.id, l)}
                         size="sm"
                       />
-                      {myTurn ? (
-                        <span className="rounded-full bg-baton px-3 py-1 text-xs font-extrabold text-white">
-                          Twoja kolej →
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-muted">Czekasz…</span>
-                      )}
+                      <span className="rounded-full bg-baton px-3 py-1 text-xs font-extrabold text-white">
+                        {mine ? "Pisz dalej →" : "Dopisz →"}
+                      </span>
                     </div>
                   </div>
                 </Link>
