@@ -1,9 +1,11 @@
 """Próba generalna demo przez API: ten sam scenariusz co w docs/DEMO.md, z automatycznym sprawdzeniem.
 
     uv run --project backend python scripts/demo_rehearsal.py           # lokalnie (http://localhost:8000)
-    uv run --project backend python scripts/demo_rehearsal.py https://sztafeta-slow.vercel.app
+    uv run --project backend python scripts/demo_rehearsal.py https://sztafeta-slow.vercel.app --pin=<RESET_PIN>
 
-Tworzy osobną kopię historii „[próba] …”, więc nie psuje historii demo z seeda.
+Z `--pin`: reset demo → scenariusz na historii „Smok…” z seeda (dokładnie jak na żywo) → reset demo.
+Bez PIN-u: tworzy osobną kopię „[próba] …” (nie rusza seeda, ale narrator AI dopisuje do niej ciąg dalszy,
+więc ocena tekstu Zosi może wyjść niższa niż na demo).
 Start historii bierze z app.ai.mock.STARTERS (ten sam tekst co w seedzie), teksty z docs/demo_texts.json.
 """
 
@@ -19,15 +21,23 @@ from app.ai.mock import STARTERS  # noqa: E402
 
 DEMO = Path(__file__).resolve().parents[1] / "docs" / "demo_texts.json"
 TEXTS = json.loads(DEMO.read_text(encoding="utf-8"))
-BASE = (sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000").rstrip("/")
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--pin=")]
+PIN = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--pin=")), "")
+BASE = (ARGS[0] if ARGS else "http://localhost:8000").rstrip("/")
 
 
-def call(method: str, path: str, token: str | None = None, body: dict | None = None) -> tuple[int, dict]:
+def call(
+    method: str, path: str, token: str | None = None, body: dict | None = None, headers: dict | None = None
+) -> tuple[int, dict]:
     req = urllib.request.Request(
         BASE + path,
         method=method,
         data=json.dumps(body).encode() if body is not None else None,
-        headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {token}"} if token else {})},
+        headers={
+            "Content-Type": "application/json",
+            **({"Authorization": f"Bearer {token}"} if token else {}),
+            **(headers or {}),
+        },
     )
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
@@ -69,16 +79,29 @@ def post(token: str, story_id: int, key: str) -> dict:
 print(f"== {BASE}")
 print("health/llm:", call("GET", "/api/health/llm")[1])
 
+def reset() -> None:
+    status, r = call("POST", "/api/admin/reset", headers={"X-Reset-Pin": PIN})
+    assert status == 200, ("reset", status, r)
+
+
 narrator = login("Próba", "owl", "7-10")
 zosia = login("Zosia", "rabbit", "7-10")
 kuba = login("Kuba", "fox", "15-18")
 maja = login("Maja", "cat", "11-14")
 
 start = STARTERS["7-10"]
-body = {"title": f"[próba] {start.title}", "text": start.text, "theme": "smoki"}
-status, r = call("POST", "/api/stories", narrator, body)
-assert status == 200 and r.get("story_id"), (status, r)
-sid = r["story_id"]
+if PIN:
+    # Dokładnie jak na demo: historia „Smok…” z seeda (sam początek, bez dopisku AI).
+    reset()
+    status, stories = call("GET", "/api/stories", zosia)
+    sid = next(s["id"] for s in stories if s["title"] == start.title)
+else:
+    # Bez PIN-u: osobna kopia. Uwaga: narrator AI od razu dopisuje do niej ciąg dalszy, więc ocena tekstu
+    # Zosi (pisanego do samego początku) może wyjść niższa niż na prawdziwym demo.
+    body = {"title": f"[próba] {start.title}", "text": start.text, "theme": "smoki"}
+    status, r = call("POST", "/api/stories", narrator, body)
+    assert status == 200 and r.get("story_id"), (status, r)
+    sid = r["story_id"]
 
 r = post(zosia, sid, "zosia_ok")
 check((r.get("comprehension") or {}).get("score", 0) >= 70, "Zosia: wysoka ocena zrozumienia")
@@ -98,5 +121,7 @@ check((r.get("moderation") or {}).get("verdict") == "reject", "Maja: dane osobow
 r = post(maja, sid, "maja_ok")
 check((r.get("segment") or {}).get("status") == "approved", "Maja: poprawiony fragment opublikowany")
 
+if PIN:
+    reset()  # demo wraca do stanu startowego
 print("\nWYNIK:", "OK" if not failures else f"{len(failures)} problem(y): {failures}")
 sys.exit(1 if failures else 0)

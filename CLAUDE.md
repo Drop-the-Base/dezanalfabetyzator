@@ -12,7 +12,7 @@ Hackathon: start 3.10 23:00, oddanie 4.10 23:00. Kod aplikacji powstaje wyłącz
 ## Stack
 - `backend/`: Python 3.12+, uv, FastAPI, SQLModel (SQLite), Pydantic v2, pytest, ruff. SQLModel: SQLite lokalnie, Postgres na produkcji.
 - `frontend/`: React + Vite + TypeScript, Tailwind, mobile-first. Teksty UI po polsku.
-- Deploy: Vercel (frontend statyczny + FastAPI jako funkcja Python `/api/*`), Postgres na Neonie. Bez WebSocketów — live updates przez polling.
+- Deploy: Vercel (frontend statyczny + FastAPI jako funkcja Python `/api/*`), Postgres na Supabase. Bez WebSocketów — live updates przez polling.
 - LLM: Groq za interfejsem `LLMProvider` (`backend/app/ai/provider.py`); zawsze istnieje `MockProvider`.
 
 ## Zasady AI

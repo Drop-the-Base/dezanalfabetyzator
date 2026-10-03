@@ -38,7 +38,7 @@ api/index.py   wejście funkcji Python na Vercelu (importuje backend)
 |---|---|
 | FastAPI + React w monorepo | Python tam, gdzie AI; React = pełna kontrola nad designem. |
 | Vercel: statyczny frontend + FastAPI jako funkcja Python | Jeden projekt, jeden URL dla 3 telefonów, deploy z gita. |
-| SQLite lokalnie, Postgres (Neon) na produkcji | Serverless nie ma trwałego dysku; zmiana bazy = zmiana `DATABASE_URL`. |
+| SQLite lokalnie, Postgres (Supabase) na produkcji | Serverless nie ma trwałego dysku; zmiana bazy = zmiana `DATABASE_URL`. |
 | Polling co ~1,5 s zamiast WebSocketów | Vercel nie obsługuje WebSocketów; na demo efekt „na żywo” jest taki sam. |
 | Groq za interfejsem `LLMProvider` | Szybka inferencja; dostawcę zmienia się jednym env. |
 | Moderacja dwuwarstwowa | Lista słów łapie oczywiste przypadki bez LLM; LLM łapie kontekst (przemoc, treści dla dorosłych, dane osobowe, nękanie). Błąd LLM → odrzucenie („spróbuj za chwilę”), nigdy automatyczna akceptacja. |
