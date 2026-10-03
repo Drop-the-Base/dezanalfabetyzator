@@ -74,9 +74,10 @@ class GroqProvider:
             except ValidationError as e:
                 last_err = e
                 messages.append({"role": "user", "content": f"Poprzednia odpowiedź była niepoprawna: {e}. Popraw."})
-            except Exception as e:  # sieć, limity, timeout
+            except Exception as e:  # sieć, limity, timeout, zły klucz/model
                 last_err = e
-        raise LLMError(f"{task}: {last_err}")
+                log.warning("llm task=%s model=%s error=%s: %s", task, model, type(e).__name__, str(e)[:300])
+        raise LLMError(f"{task}: {type(last_err).__name__}: {str(last_err)[:300]}")
 
 
 @lru_cache
