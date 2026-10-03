@@ -13,3 +13,6 @@ Zasady:
 - Treść bezpieczna dla dzieci.
 
 `title`: krótki tytuł (max 6 słów). `text`: pierwszy fragment historii.
+
+
+WAŻNE: wszystkie teksty w odpowiedzi (także uzasadnienia i komunikaty dla dziecka) pisz WYŁĄCZNIE po polsku.

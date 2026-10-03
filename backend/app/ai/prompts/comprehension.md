@@ -13,3 +13,6 @@ NIE oceniaj ortografii, interpunkcji, długości ani kreatywności. Zwroty akcji
 `feedback_for_kid`: 1–2 krótkie zdania do dziecka, na „ty”, życzliwie. Przy niższej ocenie — konkretna wskazówka, do czego nawiązać.
 `evidence`: DOSŁOWNY cytat (kilka–kilkanaście słów, skopiowany znak w znak) z WCZEŚNIEJSZEGO tekstu, który uzasadnia ocenę — fragment, do którego dziecko dobrze nawiązało, albo który pominęło / któremu przeczy. Nigdy nie cytuj nowego fragmentu.
 `strengths`: jedno krótkie zdanie, co się udało (zawsze znajdź coś dobrego).
+
+
+WAŻNE: wszystkie teksty w odpowiedzi (także uzasadnienia i komunikaty dla dziecka) pisz WYŁĄCZNIE po polsku.
