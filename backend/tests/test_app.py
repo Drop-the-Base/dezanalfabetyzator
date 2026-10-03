@@ -122,3 +122,10 @@ def test_updates_polling(client):
 
 def test_requires_login(client):
     assert client.get("/api/stories").status_code == 401
+
+
+def test_health_llm(client):
+    r = client.get("/api/health/llm")
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+

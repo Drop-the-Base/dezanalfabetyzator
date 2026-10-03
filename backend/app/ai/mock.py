@@ -62,6 +62,8 @@ class MockProvider:
     name = "mock"
 
     def complete_json(self, task: str, system: str, user: str, schema: type[BaseModel], model: str | None = None):
+        if getattr(schema, "__name__", "") == "_Ping" or "ok" in getattr(schema, "model_fields", {}):
+            return schema(ok=True)
         if schema is ModerationResult:
             return ModerationResult(verdict="ok")
         if schema is StoryStart:
