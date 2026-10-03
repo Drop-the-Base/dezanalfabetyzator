@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { AgeGroup } from "../lib/api";
-import { AGE_LABELS, APP_NAME, AVATARS, TAGLINE } from "../lib/brand";
+import { AGE_LABELS, APP_NAME, AVATARS, JURY, TAGLINE } from "../lib/brand";
 import { useSession } from "../lib/session";
 import { Button, Mascot } from "../components/ui";
 
@@ -120,6 +120,14 @@ export default function Login() {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => submit(JURY.nick, JURY.avatar, JURY.age)}
+          disabled={busy}
+          className="mt-4 rounded-full bg-ink px-4 py-2 text-sm font-extrabold text-white"
+        >
+          ⚖️ Tryb jury
+        </button>
+        <p className="mt-1 text-xs text-muted">Widzisz wszystkie historie i możesz zresetować demo.</p>
       </div>
     </main>
   );
