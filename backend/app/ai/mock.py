@@ -126,7 +126,7 @@ class MockProvider:
         else:
             verdict = "not_understood"
             best = sentences[-1] if sentences else ""
-            fb = "Hmm, Twój fragment nie łączy się z historią. Przeczytaj jeszcze raz, na czym się zatrzymała."
+            fb = "Fajny pomysł! Następnym razem spróbuj nawiązać do tego, na czym zatrzymała się historia."
         return ComprehensionResult(
             score=score,
             verdict=verdict,

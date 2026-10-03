@@ -9,8 +9,9 @@ AI (lub dziecko) zaczyna historię
         │
         ▼
 Dziecko A czyta ──► pisze ciąg dalszy ──► AI: moderacja ──► AI: ocena zrozumienia ──► publikacja ──► AI: narrator dopisuje swój fragment
-                                             │ odrzucone           │ „nie łączy się”
-                                             ▼                     ▼
+                                             │ odrzucone (tylko     │ pochwała + wskazówka;
+                                             │ treści niestosowne)  │ mniej spójne → „Do poprawienia”
+                                             ▼
                          przyjazny komunikat; tekst zostaje w polu, dziecko poprawia i wysyła ponownie
         │
         ▼
@@ -52,7 +53,7 @@ api/index.py   wejście funkcji Python na Vercelu (importuje backend)
 
 ## Weryfikacja wyników AI
 - Każda ocena zrozumienia zawiera **dosłowny cytat z wcześniejszego tekstu** (dowód). Backend sprawdza, że cytat naprawdę jest w tekście (inaczej go odrzuca), a frontend **podświetla go w historii** — dziecko widzi, na czym AI oparło ocenę.
-- Fragment ocenony jako **„nie łączy się z historią”** nie wchodzi do historii — dziecko dostaje wskazówkę z cytatem i poprawia swój tekst (zostaje w polu). Ocena „częściowo” przepuszcza fragment. Awaria LLM przy ocenie nie blokuje dzieci.
+- Ocena zrozumienia **nigdy nie blokuje** — każdy fragment wchodzi do historii z pochwałą; mniej spójny dostaje wskazówkę z cytatem i trafia do „Do poprawienia”, gdzie inni proponują poprawki. Blokuje wyłącznie moderacja (treści obraźliwe i niestosowne). Awaria LLM przy ocenie nie blokuje dzieci.
 - Każda decyzja AI jest zapisana w `AIReview` (model, werdykt, uzasadnienie, surowy JSON).
 
 ## Ograniczenia

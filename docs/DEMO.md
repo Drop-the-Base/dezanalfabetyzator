@@ -32,7 +32,7 @@ Na ekranie logowania są gotowe profile demo (jedno kliknięcie). Kuba i Maja pr
 
    Oczekiwane: ocena ~90, pochwała, **podświetlony cytat** o zgasłej latarence i pukaniu. Zaraz pod spodem **Sowa AI dopisuje swój ciąg dalszy** (historia przeplata się: AI → dziecko → AI). Oba fragmenty pojawiają się na żywo u Kuby i Mai.
 3. **Kuba** wkleja `kuba_off` (mecz Legii z Lechem, kebab, FIFA).
-   Oczekiwane: fragment **nie wchodzi do historii** — karta „Hmm, to się jeszcze nie łączy”, ocena ~10, życzliwa podpowiedź i podświetlony cytat, do czego nawiązać. Tekst zostaje w polu — Kuba może go poprawić i wysłać ponownie.
+   Oczekiwane: fragment **wchodzi do historii** (blokuje tylko moderacja) — pochwała na start, znaczek „Nowy zwrot akcji!”, ocena ~10, wskazówka i podświetlony cytat, do czego można nawiązać następnym razem. Fragment trafia do „✍️ Poprawki → Do poprawienia”, gdzie inni mogą zaproponować zmianę.
 4. **Maja** wkleja `maja_bad` (wulgaryzm).
    Oczekiwane: odrzucone przez listę słów, bez cytowania brzydkiego słowa, z przyjaznym komunikatem.
 5. *(opcjonalnie)* **Maja** wkleja `maja_private` (adres + telefon + „nie mów rodzicom”).

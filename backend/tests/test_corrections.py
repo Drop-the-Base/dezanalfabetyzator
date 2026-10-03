@@ -175,13 +175,13 @@ def test_demo_corrections_helper(client, story, engine):
 
 
 def test_weak_but_related_segment_stays_and_is_to_fix(client, story, monkeypatch):
-    """Fragment z odrobiną sensu (wynik ≥ REJECT_BELOW) zostaje w historii i trafia do „Do poprawienia”."""
+    """Mniej spójny fragment zostaje w historii (blokuje tylko moderacja) i trafia do „Do poprawienia”."""
     sid, _, zosia, kuba = story
     real = ai.assess_comprehension
 
     def weak(previous, new, age_group):
         r = real(previous, new, age_group)
-        r.score, r.verdict = 30, "not_understood"
+        r.score, r.verdict = 5, "not_understood"
         return r
 
     monkeypatch.setattr(ai, "assess_comprehension", weak)

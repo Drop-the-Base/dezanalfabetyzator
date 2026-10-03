@@ -83,22 +83,15 @@ def test_full_relay_flow(client):
     r2 = client.post(f"/api/stories/{sid}/segments", json={"text": "I jeszcze jedno zdanie ode mnie."}, headers=zosia)
     assert r2.status_code == 409
 
-    # Oderwana kontynuacja → NIE wchodzi do historii, autor musi napisać jeszcze raz
+    # Oderwana kontynuacja → i tak wchodzi do historii (blokuje tylko moderacja); AI chwali i podpowiada
     r3 = client.post(
         f"/api/stories/{sid}/segments", json={"text": "Wczoraj grałem w piłkę na boisku z kolegami."}, headers=kuba
     ).json()
-    assert r3["segment"]["status"] == "rejected"
-    assert r3["ai_segment"] is None
+    assert r3["segment"]["status"] == "approved"
+    assert r3["ai_segment"] is not None
     assert r3["comprehension"]["verdict"] == "not_understood"
     assert r3["comprehension"]["evidence"]  # wskazówka, do czego nawiązać
-
-    # Poprawiona wersja → wchodzi
-    r3b = client.post(
-        f"/api/stories/{sid}/segments",
-        json={"text": "Smok Fafik z latarenką doszedł w ciemności do miejsca, skąd dobiegało pukanie w jaskini."},
-        headers=kuba,
-    ).json()
-    assert r3b["segment"]["status"] == "approved"
+    assert r3["comprehension"]["strengths"]  # pochwała zawsze jest
 
     # Wulgaryzm → odrzucone, nie pojawia się w historii
     r4 = client.post(f"/api/stories/{sid}/segments", json={"text": "Smok powiedział: kurwa, ciemno."}, headers=zosia)
