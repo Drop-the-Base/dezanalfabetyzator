@@ -47,7 +47,7 @@ export default function Feed() {
           </p>
         </section>
 
-        {jury && <JuryPanel onReset={() => api.stories().then(setStories)} />}
+        {jury && <JuryPanel />}
 
         <div className="mt-5 flex gap-2">
           {[

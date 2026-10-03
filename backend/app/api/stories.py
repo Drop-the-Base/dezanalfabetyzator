@@ -23,6 +23,7 @@ router = APIRouter(prefix="/api", tags=["stories"])
 
 THEMES = ["smoki", "kosmos", "detektyw", "piłka nożna", "gry komputerowe", "szkoła", "zwierzęta", "podróż w czasie"]
 MAX_LEN = {AgeGroup.young: 400, AgeGroup.middle: 800, AgeGroup.teen: 1200}
+REJECT_BELOW = 25  # ocena zrozumienia, poniżej której fragment nie wchodzi do historii
 MIN_LEN = 15
 
 
@@ -214,8 +215,9 @@ def add_segment(story_id: int, body: NewSegment, session: SessionDep, user: User
 
     comp_review: AIReview | None = None
     if mod.verdict == "ok":
-        # Fragment, który w ogóle nie nawiązuje do historii, wraca do autora do poprawy.
-        # „Częściowo” przechodzi; awaria LLM też nie blokuje dzieci.
+        # Tylko fragment zupełnie oderwany od historii (wynik < REJECT_BELOW) wraca do autora.
+        # Jeśli ma choć trochę sensu, zostaje — inni mogą go potem poprawić w zakładce „Poprawki”.
+        # Awaria LLM też nie blokuje dzieci.
         try:
             comp = ai.assess_comprehension(previous, text, user.age_group)
             seg.comprehension_score = comp.score
@@ -224,7 +226,7 @@ def add_segment(story_id: int, body: NewSegment, session: SessionDep, user: User
                 reason=comp.feedback_for_kid, evidence=comp.evidence, strengths=comp.strengths,
                 model=ai.provider_name(), raw_json=comp.model_dump_json(),
             )
-            if comp.verdict == "not_understood":
+            if comp.score < REJECT_BELOW:
                 seg.status = SegmentStatus.rejected
         except LLMError:
             pass
