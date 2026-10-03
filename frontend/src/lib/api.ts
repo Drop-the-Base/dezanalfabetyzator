@@ -166,6 +166,11 @@ export const api = {
   login: (nick: string, avatar: string, age_group: AgeGroup) =>
     post<{ token: string; user: User }>("/auth/demo", { nick, avatar, age_group }),
   me: () => request<User>("/auth/me"),
+  resetDemo: (pin: string) =>
+    request<{ ok: boolean; counts: Record<string, number> }>("/admin/reset", {
+      method: "POST",
+      headers: { "X-Reset-Pin": pin },
+    }),
   themes: () => request<string[]>("/themes"),
   stories: () => request<Story[]>("/stories"),
   story: (id: number) => request<StoryDetail>(`/stories/${id}`),
