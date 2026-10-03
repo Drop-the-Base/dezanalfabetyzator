@@ -58,7 +58,7 @@ api/index.py   wejście funkcji Python na Vercelu (importuje backend)
 ## Ograniczenia
 - LLM może się mylić w ocenie zrozumienia → ocena jest tylko podpowiedzią, z cytatem do sprawdzenia.
 - Moderacja nie jest w 100% szczelna → dwie warstwy.
-- Zależność od zewnętrznego API → `MockProvider` jako fallback.
+- Zależność od zewnętrznego API → `MockProvider` jako fallback. Darmowy limit Groq: 8000 tokenów/min na model → moderacja na osobnym modelu (`gpt-oss-safeguard-20b`).
 - Logowanie tylko demonstracyjne.
 
 ## Scenariusz demo (3 telefony)
