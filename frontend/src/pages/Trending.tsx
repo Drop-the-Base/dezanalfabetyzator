@@ -16,14 +16,16 @@ export default function Trending() {
   // co kilka sekund (gdy karta jest widoczna) i po powrocie do aplikacji.
   useEffect(() => {
     let alive = true;
-    const load = () => {
-      if (document.visibilityState !== "visible") return;
+    const fetchNow = () =>
       api
         .trending()
         .then((s) => alive && setStories(s))
         .catch(() => alive && setStories((prev) => prev ?? []));
+    // Pierwsze pobranie zawsze (także w karcie w tle); odświeżanie tylko, gdy karta jest widoczna.
+    const load = () => {
+      if (document.visibilityState === "visible") fetchNow();
     };
-    load();
+    fetchNow();
     const timer = setInterval(load, REFRESH_MS);
     window.addEventListener("focus", load);
     document.addEventListener("visibilitychange", load);
