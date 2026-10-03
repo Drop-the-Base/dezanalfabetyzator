@@ -40,6 +40,7 @@ def client(engine):
 @pytest.fixture
 def pin(monkeypatch):
     monkeypatch.setattr(get_settings(), "reset_pin", PIN)
+    monkeypatch.setattr(get_settings(), "reset_requires_pin", True)
     return PIN
 
 
@@ -58,10 +59,23 @@ def test_dataset_is_consistent():
 
 def test_reset_disabled_without_pin(client, monkeypatch):
     monkeypatch.setattr(get_settings(), "reset_pin", "")
+    monkeypatch.setattr(get_settings(), "reset_requires_pin", True)
     r = client.post("/api/admin/reset", headers={"X-Reset-Pin": ""})
     assert r.status_code == 403
     r = client.post("/api/admin/reset", headers={"X-Reset-Pin": "cokolwiek"})
     assert r.status_code == 403
+
+
+def test_open_reset_for_jury_has_cooldown(client, monkeypatch, engine):
+    """Domyślnie (tryb jury) reset bez PIN-u, ale nie częściej niż raz na RESET_COOLDOWN_S."""
+    from app.api import admin
+
+    monkeypatch.setattr(get_settings(), "reset_requires_pin", False)
+    monkeypatch.setattr(admin, "_last_open_reset", 0.0)
+    assert client.post("/api/admin/reset").status_code == 200
+    with Session(engine) as s:
+        assert s.exec(select(Story)).first() is not None
+    assert client.post("/api/admin/reset").status_code == 429
 
 
 def test_reset_wrong_pin(client, pin, engine):

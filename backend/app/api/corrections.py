@@ -18,6 +18,7 @@ from app.ai import services as ai
 from app.ai.provider import LLMError
 from app.api.deps import SessionDep, UserDep
 from app.api.dto import AuthorOut, SegmentOut, author_out, segments_out
+from app.api.stories import REJECT_BELOW
 from app.models import Correction, CorrectionStatus, Segment, SegmentStatus, Story, User, now
 
 router = APIRouter(prefix="/api", tags=["corrections"])
@@ -176,14 +177,14 @@ def recent_corrections(session: SessionDep, user: UserDep, limit: int = 30):
 
 @router.get("/corrections/to-fix", response_model=list[ToFixOut])
 def to_fix(session: SessionDep, user: UserDep, limit: int = 20):
-    """Cudze fragmenty zrozumiane „częściowo” (40–79), jeszcze bez zaakceptowanej poprawki."""
+    """Cudze opublikowane fragmenty ze słabszą oceną (REJECT_BELOW–79), jeszcze bez zaakceptowanej poprawki."""
     fixed = select(Correction.segment_id).where(Correction.status == CorrectionStatus.accepted)
     segs = list(
         session.exec(
             select(Segment)
             .where(
                 Segment.status == SegmentStatus.approved,
-                col(Segment.comprehension_score).between(40, 79),
+                col(Segment.comprehension_score).between(REJECT_BELOW, 79),
                 col(Segment.author_id).is_not(None),
                 Segment.author_id != user.id,
                 col(Segment.id).not_in(fixed),

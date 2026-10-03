@@ -5,7 +5,7 @@ Scenariusz zgodny z `docs/ARCHITECTURE.md` („Scenariusz demo”). Gotowe tekst
 ## Przygotowanie (≈10 min przed)
 1. Baza demo:
    - lokalnie: `npm run demo-reset`
-   - produkcja: tryb jury → „🔄 Resetuj demo” (PIN z `RESET_PIN`) albo `curl -X POST -H "X-Reset-Pin: <PIN>" https://sztafeta-slow.vercel.app/api/admin/reset`
+   - produkcja: tryb jury → „🔄 Reset” na górze strony (bez PIN-u, najwyżej raz na 20 s) albo `curl -X POST -H "X-Reset-Pin: <PIN>" https://sztafeta-slow.vercel.app/api/admin/reset`
    - albo w aplikacji: profil **⚖️ Tryb jury** → „🔄 Resetuj demo” → PIN z `RESET_PIN` (`POST /api/admin/reset`, bez LLM).
      Zestaw: 8 historii we wszystkich grupach wiekowych (`backend/app/demo_data.py`); „Smok…” zostaje na samym starcie.
 2. Próba generalna (AI odpowiada tak, jak w scenariuszu):

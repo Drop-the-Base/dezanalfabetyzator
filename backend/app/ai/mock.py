@@ -116,7 +116,7 @@ class MockProvider:
         prev_stems = {_stem(w) for w in _words(previous)}
         new_stems = {_stem(w) for w in _words(new)}
         overlap = prev_stems & new_stems
-        score = min(100, 25 + 18 * len(overlap))
+        score = min(100, 25 + 18 * len(overlap)) if overlap else 10  # zero wspólnych słów = zupełnie oderwane
         sentences = [s.strip() for s in re.split(r"(?<=[.!?…])\s+", previous) if s.strip()]
         best = max(sentences or [""], key=lambda s: len({_stem(w) for w in _words(s)} & new_stems))
         if score >= 80:

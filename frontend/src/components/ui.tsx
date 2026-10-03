@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { api, type Author, type LikeState } from "../lib/api";
 import { APP_NAME, AVATARS } from "../lib/brand";
 import { useSession } from "../lib/session";
-import { JuryToggle } from "./jury";
+import { JuryResetButton, JuryToggle } from "./jury";
 
 /** Sowa — głos AI w aplikacji. */
 export function Mascot({ size = 56, thinking = false }: { size?: number; thinking?: boolean }) {
@@ -79,6 +79,7 @@ export function TopBar({ back, title }: { back?: string; title?: string }) {
           </span>
         )}
         <h1 className="min-w-0 flex-1 truncate text-lg font-black tracking-tight">{title ?? APP_NAME}</h1>
+        {user && <JuryResetButton />}
         <JuryToggle />
         {user && (
           <button

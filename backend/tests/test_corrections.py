@@ -172,3 +172,21 @@ def test_demo_corrections_helper(client, story, engine):
         assert all(c.model == "demo" and c.raw_json for c in made)
     shown = client.get(f"/api/stories/{sid}/corrections", headers=login(client, "Ola")).json()
     assert sorted(c["status"] for c in shown) == ["accepted", "rejected"]
+
+
+def test_weak_but_related_segment_stays_and_is_to_fix(client, story, monkeypatch):
+    """Fragment z odrobiną sensu (wynik ≥ REJECT_BELOW) zostaje w historii i trafia do „Do poprawienia”."""
+    sid, _, zosia, kuba = story
+    real = ai.assess_comprehension
+
+    def weak(previous, new, age_group):
+        r = real(previous, new, age_group)
+        r.score, r.verdict = 30, "not_understood"
+        return r
+
+    monkeypatch.setattr(ai, "assess_comprehension", weak)
+    text = "Fafik coś usłyszał w jaskini i poszedł spać."
+    r = client.post(f"/api/stories/{sid}/segments", json={"text": text}, headers=kuba).json()
+    assert r["segment"]["status"] == "approved"
+    to_fix = client.get("/api/corrections/to-fix", headers=zosia).json()
+    assert r["segment"]["id"] in [t["segment"]["id"] for t in to_fix]
