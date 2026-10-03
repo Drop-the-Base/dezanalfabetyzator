@@ -10,9 +10,10 @@ from datetime import timedelta
 from sqlalchemy import Engine, text
 from sqlmodel import Session, SQLModel, select
 
+from app.api.corrections import DemoCorrection, demo_corrections
 from app.api.likes import demo_likes
 from app.db import engine, init_db
-from app.demo_data import DEMO_STORIES, DEMO_USERS, LIKED_STORIES
+from app.demo_data import DEMO_CORRECTIONS, DEMO_STORIES, DEMO_USERS, LIKED_STORIES
 from app.models import AIReview, Like, ReviewKind, Segment, SegmentStatus, Story, User, now
 
 
@@ -90,9 +91,22 @@ def seed_demo(s: Session) -> dict[str, int]:
     demo_likes(s, {t: stories[t].id for t in LIKED_STORIES}, [u.id for u in users.values()])
     counts["likes"] = len(s.exec(select(Like)).all())
 
-    # HOOK (poprawki, #32): gdy powstanie model poprawek, dodaj tu przykładowe zgłoszenia, np.
-    #   counts["corrections"] = demo_corrections(s, users, stories, segments)
-    # (segments: (tytuł, pozycja) → Segment; zaakceptowana + odrzucona poprawka z oceną AI).
+    # Poprawki (#32): zaakceptowane od razu podmieniają tekst. Zachowujemy daty z seeda,
+    # żeby kolejność w feedzie się nie zmieniła („Smok…” ma zostać na górze).
+    dates = {k: (seg.updated_at, stories[k[0]].updated_at) for k, seg in segments.items()}
+    created = demo_corrections(s, [
+        DemoCorrection(
+            segment=segments[(c.story, c.position)], author=users[c.author], original=c.original,
+            proposed=c.proposed, accepted=c.accepted, feedback=c.feedback, evidence=c.evidence, reason=c.reason,
+        )
+        for c in DEMO_CORRECTIONS
+    ], commit=False)
+    for c, corr in zip(DEMO_CORRECTIONS, created, strict=True):
+        seg_at, story_at = dates[(c.story, c.position)]
+        segments[(c.story, c.position)].updated_at = seg_at
+        stories[c.story].updated_at = story_at
+        corr.created_at = seg_at + timedelta(minutes=1)
+    counts["corrections"] = len(created)
 
     s.flush()
     return counts

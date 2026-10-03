@@ -13,7 +13,7 @@ from app.config import get_settings
 from app.db import get_session
 from app.demo_data import DEMO_STORIES, check_dataset
 from app.main import app
-from app.models import AIReview, ReviewKind, Segment, SegmentStatus, Story
+from app.models import AIReview, Correction, ReviewKind, Segment, SegmentStatus, Story
 
 PIN = "2468"
 
@@ -97,6 +97,17 @@ def test_reset_with_pin_seeds_demo(client, pin, engine):
     # „Na topie” od razu ma historie
     assert client.get("/api/stories/trending", headers=jury).json()
 
+    # Poprawki: zaakceptowane już w tekście, lista „Do poprawienia” niepusta dla jury
+    corrs = client.get("/api/corrections", headers=jury).json()
+    assert counts["corrections"] == len(corrs) >= 3
+    assert {c["status"] for c in corrs} == {"accepted", "rejected"}
+    assert all(c["story_title"] != STARTERS["7-10"].title for c in corrs)
+    for c in corrs:
+        seg = next(x for x in client.get(f"/api/stories/{c['story_id']}", headers=jury).json()["segments"]
+                   if x["id"] == c["segment_id"])
+        assert (c["proposed"] if c["status"] == "accepted" else c["original"]) in seg["text"]
+    assert client.get("/api/corrections/to-fix", headers=jury).json()
+
     # Drugi reset też działa (idempotentnie)
     assert client.post("/api/admin/reset", headers={"X-Reset-Pin": pin}).json()["counts"] == counts
 
@@ -117,6 +128,16 @@ def test_seeded_evidence_is_verbatim_from_earlier_text(client, pin, engine):
             ).all()
             assert r.evidence and r.evidence in "\n\n".join(x.text for x in earlier), r.evidence
             assert r.score is not None and r.reason
+        for c in s.exec(select(Correction)).all():
+            seg = s.get(Segment, c.segment_id)
+            earlier = s.exec(
+                select(Segment).where(
+                    Segment.story_id == seg.story_id,
+                    Segment.status == SegmentStatus.approved,
+                    Segment.position < seg.position,
+                )
+            ).all()
+            assert c.evidence and c.evidence in "\n\n".join(x.text for x in earlier), c.evidence
         # odrzucenia moderacji zapisane jako odrzucone fragmenty
         rejects = s.exec(select(AIReview).where(AIReview.kind == ReviewKind.moderation, AIReview.verdict == "reject"))
         for r in rejects.all():

@@ -112,7 +112,7 @@ DEMO_STORIES: list[DemoStory] = [
             )),
             DemoSegment("Olek", (
                 "Kasia wpadła na pomysł. Pobiegła do domu i przyniosła stare skarpetki dziadka, grube i wełniane. "
-                "Mruczek pomógł je założyć kogutowi. Ryszard oddał skarpetkę w kropki i zapiał z radości tak "
+                "Mruczek pomógł je założyć kogutowi. Ryszard oddał skarpetkę w paski i zapiał z radości tak "
                 "głośno, że obudził całą ulicę Lipową."
             ), DemoReview(
                 86, "understood",
@@ -202,8 +202,9 @@ DEMO_STORIES: list[DemoStory] = [
                 "i drugi, mniejszy klucz. List zaczynał się od słów: „Drodzy uczniowie, jeśli to czytacie, to znaczy, "
                 "że pani Halina znowu zapomniała zamknąć okno w bibliotece”."
             ), DemoReview(
-                85, "understood",
-                "Dobrze! Użyłaś daty z atlasu jako szyfru do kłódki — sprytnie łączysz dwa tropy.",
+                72, "partially",
+                "Dobry pomysł z datą z atlasu jako szyfrem! Zabrakło mi tylko wyspy w kształcie klucza i cienia "
+                "dębu — spróbuj do nich nawiązać.",
                 "Były zamknięte na kłódkę z szyfrem z czterech cyfr.",
                 "Zabawny początek listu rozluźnia napięcie.",
             )),
@@ -281,7 +282,7 @@ DEMO_STORIES: list[DemoStory] = [
             )),
             DemoSegment("Kuba", (
                 "Tymek nie strzelił. Zamiast tego podał do Igi, która stała zupełnie wolna przy słupku, i Iga "
-                "wyrównała na 2:2. Dopiero po gwizdku Tymek zrozumiał, co krzyczał Bartek: „Podaj!”. Kapitan "
+                "wyrównała na 1:1. Dopiero po gwizdku Tymek zrozumiał, co krzyczał Bartek: „Podaj!”. Kapitan "
                 "podszedł do niego, kulejąc, i przed całą drużyną powiedział, że plotkę o sprzedanym meczu wymyślił "
                 "on sam."
             ), DemoReview(
@@ -330,8 +331,9 @@ DEMO_STORIES: list[DemoStory] = [
                 "— przyznał. — Z twojego numeru. Ola poczuła, że podpis zmarłego urzędnika i ta aplikacja to dwa "
                 "kawałki tej samej układanki."
             ), DemoReview(
-                84, "understood",
-                "Dobrze! Ola posłuchała ostrzeżenia „Nie ufaj Kacprowi”, a Ty połączyłeś je z aplikacją z początku.",
+                66, "partially",
+                "Dobrze, że Ola posłuchała ostrzeżenia „Nie ufaj Kacprowi”. Zabrakło jednak mostu i zarządzenia — "
+                "spróbuj mocniej do nich nawiązać.",
                 "Telefon Oli zawibrował ponownie: „Nie ufaj Kacprowi”.",
                 "Zręcznie wracasz do wątku aplikacji Kacpra.",
             )),
@@ -382,6 +384,42 @@ LIKED_STORIES = [
 ]
 
 
+@dataclass(frozen=True)
+class DemoCorrectionSpec:
+    """Poprawka demo (app.api.corrections.DemoCorrection) — „już oceniona”, bez LLM."""
+
+    story: str  # tytuł historii
+    position: int  # pozycja poprawianego fragmentu
+    author: str  # nick proponującego (≠ autor fragmentu)
+    original: str  # dosłownie w tekście fragmentu
+    proposed: str
+    accepted: bool
+    feedback: str
+    evidence: str  # dosłownie z wcześniejszych zatwierdzonych fragmentów
+    reason: str = ""
+
+
+DEMO_CORRECTIONS: list[DemoCorrectionSpec] = [
+    DemoCorrectionSpec(
+        "Kot detektyw i zaginiona skarpetka", 5, "Zosia", "skarpetkę w paski", "skarpetkę w kropki", True,
+        "Brawo, czujne oko! Kasia zgubiła skarpetkę w kropki, więc teraz wszystko się zgadza.",
+        "Zginęła moja ulubiona skarpetka w kropki!", "Na początku skarpetka była w kropki.",
+    ),
+    DemoCorrectionSpec(
+        "Mecz o wszystko", 4, "Tymek", "wyrównała na 1:1", "wyrównała na 2:2", True,
+        "Dobrze liczysz! Drużyna przegrywała 1:2, więc wyrównujący gol daje 2:2.",
+        "drużyna liceum im. Skłodowskiej przegrywała 1:2", "Przegrywali 1:2, więc po golu jest 2:2.",
+    ),
+    DemoCorrectionSpec(
+        STARTERS[AgeGroup.middle].title, 2, "Lena", "Do zmroku zostało pół godziny", "Było już całkiem ciemno",
+        False,
+        "Dobra uwaga, że robiło się późno! Ale zegar wybił dopiero siódmą, a słońce dopiero się chowało — "
+        "więc jeszcze nie było ciemno. Ten fragment pasuje.",
+        "Zegar w kuchni wybił właśnie siódmą, a słońce chowało się za lasem.", "Bo był już wieczór.",
+    ),
+]
+
+
 def check_dataset() -> list[str]:
     """Spójność zestawu: cytaty dosłowne, sztafeta, limity długości. Pusta lista = OK."""
     problems: list[str] = []
@@ -416,6 +454,17 @@ def check_dataset() -> list[str]:
     for t in LIKED_STORIES:
         if t not in titles or sum(x.approved for x in titles[t].segments) < 2:
             problems.append(f"{t!r}: polubiona historia musi istnieć i mieć ≥ 2 zatwierdzone fragmenty")
+    for c in DEMO_CORRECTIONS:
+        st = titles.get(c.story)
+        if st is None or c.story == smok.title or not 1 <= c.position <= len(st.segments):
+            problems.append(f"poprawka {c.original!r}: zła historia/pozycja (i nie w „Smoku”)")
+            continue
+        seg = st.segments[c.position - 1]
+        earlier = "\n\n".join(x.text for x in st.segments[: c.position - 1] if x.approved)
+        if not seg.approved or seg.author is None or seg.author == c.author or c.original not in seg.text:
+            problems.append(f"poprawka {c.original!r}: niepasujący fragment albo autor")
+        if c.evidence not in earlier:
+            problems.append(f"poprawka {c.original!r}: cytat nie jest dosłownym fragmentem wcześniejszego tekstu")
     if any(s.author for s in smok.segments):
         problems.append("Smok: w historii z demo nie może być jeszcze fragmentów dzieci")
     return problems
