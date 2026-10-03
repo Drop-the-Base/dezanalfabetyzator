@@ -1,4 +1,4 @@
-# Dezanalfabetyzator
+# Sztafeta Słów (Dezanalfabetyzator)
 
 HackYeah 2026 — zadanie otwarte **Artificial Intelligence** · zespół **Drop the Base**
 
@@ -8,7 +8,7 @@ Wspólne pisanie historyjek przez dzieci i młodzież (7–18 lat). Dziecko czyt
 2. **zaczyna** historie dopasowane do wieku,
 3. **sprawdza zrozumienie**: czy kontynuacja nawiązuje do tego, co było wcześniej, i komentuje z cytatem z tekstu.
 
-Każdą decyzję AI można zakwestionować („Nie zgadzam się”), a nauczyciel ma panel do nadzoru.
+Każda ocena AI pokazuje cytat z tekstu, na którym się opiera — podświetlony w historii.
 
 - Architektura: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - Plan prac: [Issues](https://github.com/Drop-the-Base/dezanalfabetyzator/issues)

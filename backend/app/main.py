@@ -1,0 +1,49 @@
+import logging
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from app.ai.services import provider_name
+from app.api import auth, stories, updates
+from app.config import APP_NAME, get_settings
+from app.db import init_db
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title=APP_NAME, lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in get_settings().cors_origins.split(",") if o.strip()],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+for r in (auth.router, stories.router, updates.router):
+    app.include_router(r)
+
+
+@app.get("/api/health")
+def health():
+    return {"ok": True, "app": APP_NAME, "llm": provider_name()}
+
+
+# Lokalnie / w kontenerze: serwuj zbudowany frontend. Na Vercelu robi to CDN.
+STATIC = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if STATIC.exists():
+    app.mount("/assets", StaticFiles(directory=STATIC / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str):
+        f = STATIC / path
+        return FileResponse(f if path and f.is_file() else STATIC / "index.html")

@@ -5,8 +5,8 @@ Hackathon: start 3.10 23:00, oddanie 4.10 23:00. Kod aplikacji powstaje wyłącz
 
 ## Sposób pracy
 - Pracuje jeden agent; issues na GitHubie są ponumerowane w kolejności realizacji (sekcja „Zależy od”).
-- Jedno issue = jeden branch `issue-<nr>-<slug>` = jeden PR z `Closes #<nr>`. Małe, działające kroki.
-- Po każdym issue aplikacja musi się uruchamiać (`make dev` lub odpowiednik).
+- Commit na `main` per issue (`Closes #N`), małe działające kroki.
+- Po każdym issue aplikacja musi się uruchamiać (`npm run dev` w katalogu głównym).
 - Nie dodawaj funkcji spoza issue; pomysły zapisuj jako nowe issue z etykietą `idea`.
 
 ## Stack
@@ -19,5 +19,8 @@ Hackathon: start 3.10 23:00, oddanie 4.10 23:00. Kod aplikacji powstaje wyłącz
 - Prompty trzymamy w `backend/app/ai/prompts/*.md`, nie w kodzie.
 - Każda odpowiedź LLM to JSON walidowany modelem Pydantic; błąd → 1 retry → bezpieczny fallback (`needs_review`).
 - Każda decyzja AI zapisywana w `AIReview` (model, verdict, reason, evidence, raw_json).
+
+## Zakres MVP (nie rozszerzać bez zgody zespołu)
+Tylko: pisanie i czytanie historyjek sztafetą + AI (moderacja, start historii, ocena zrozumienia z cytatem). Bez paneli nauczyciela, odwołań, TTS/STT, odznak.
 - Komunikaty dla dzieci: krótkie, życzliwe, bez zawstydzania, dopasowane do grupy wiekowej.
 - Klucze tylko w `.env`; nigdy w repo.

@@ -1,0 +1,29 @@
+from functools import lru_cache
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ROOT = Path(__file__).resolve().parents[2]
+BACKEND = Path(__file__).resolve().parents[1]
+
+APP_NAME = "Sztafeta Słów"
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=(ROOT / ".env", BACKEND / ".env"), env_file_encoding="utf-8", extra="ignore"
+    )
+
+    llm_provider: str = "mock"  # groq | mock
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_moderation_model: str = ""
+    llm_timeout_s: float = 20.0
+
+    database_url: str = f"sqlite:///{(BACKEND / 'data' / 'app.db').as_posix()}"
+    cors_origins: str = "http://localhost:5173"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

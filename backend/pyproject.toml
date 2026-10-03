@@ -1,0 +1,31 @@
+[project]
+name = "sztafeta-slow-backend"
+version = "0.1.0"
+description = "Sztafeta Słów — backend (FastAPI)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.142.2",
+    "groq>=1.7.0",
+    "psycopg[binary]>=3.3.6",
+    "pydantic-settings>=2.15.0",
+    "sqlmodel>=0.0.47",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.10",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["groq: wymaga GROQ_API_KEY (test integracyjny)"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
