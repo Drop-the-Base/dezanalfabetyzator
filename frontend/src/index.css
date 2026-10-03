@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
+
+  --color-paper: #fff7ed;
+  --color-card: #ffffff;
+  --color-ink: #1f2937;
+  --color-muted: #6b7280;
+  --color-line: #fde4cc;
+
+  --color-baton: #f97316;
+  --color-baton-dark: #c2410c;
+  --color-baton-soft: #ffedd5;
+
+  --color-ai: #7c3aed;
+  --color-ai-soft: #f3e8ff;
+
+  --color-good: #16a34a;
+  --color-good-soft: #dcfce7;
+  --color-mid: #d97706;
+  --color-mid-soft: #fef3c7;
+  --color-bad: #dc2626;
+  --color-bad-soft: #fee2e2;
+
+  --animate-pop: pop 0.35s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-glow: glow 2s ease-in-out 2;
+
+  @keyframes pop {
+    0% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes slide-up {
+    0% { transform: translateY(16px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(249 115 22 / 0); }
+    50% { box-shadow: 0 0 0 6px rgb(249 115 22 / 0.35); }
+  }
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Młodsze dzieci: większa czcionka czytania */
+[data-age="7-10"] .story-text { font-size: 1.25rem; line-height: 1.75; }
+[data-age="11-14"] .story-text { font-size: 1.125rem; line-height: 1.7; }
+[data-age="15-18"] .story-text { font-size: 1.05rem; line-height: 1.65; }
+
+mark.evidence {
+  background: linear-gradient(transparent 35%, #fde68a 35%);
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 3px;
+  scroll-margin: 120px;
+}

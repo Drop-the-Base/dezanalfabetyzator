@@ -30,12 +30,20 @@ def make_engine(url: str | None = None):
 engine = make_engine()
 
 
+_initialized = False
+
+
 def init_db() -> None:
+    global _initialized
     from app import models  # noqa: F401  (rejestracja tabel)
 
     SQLModel.metadata.create_all(engine)
+    _initialized = True
 
 
 def get_session() -> Iterator[Session]:
+    # Serverless może nie odpalić lifespan — tworzymy tabele przy pierwszym zapytaniu.
+    if not _initialized:
+        init_db()
     with Session(engine) as session:
         yield session

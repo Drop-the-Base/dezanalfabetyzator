@@ -75,7 +75,8 @@ def test_full_relay_flow(client):
     assert r["moderation"]["verdict"] == "ok"
     assert r["segment"]["status"] == "approved"
     assert r["comprehension"]["score"] >= 80
-    assert r["comprehension"]["evidence"] in client.get(f"/api/stories/{sid}", headers=zosia).json()["segments"][0]["text"]
+    first_text = client.get(f"/api/stories/{sid}", headers=zosia).json()["segments"][0]["text"]
+    assert r["comprehension"]["evidence"] in first_text
 
     # Ta sama osoba dwa razy pod rząd → blokada (sztafeta!)
     r2 = client.post(f"/api/stories/{sid}/segments", json={"text": "I jeszcze jedno zdanie ode mnie."}, headers=zosia)

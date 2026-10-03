@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -20,7 +21,10 @@ class Settings(BaseSettings):
     groq_moderation_model: str = ""
     llm_timeout_s: float = 20.0
 
-    database_url: str = f"sqlite:///{(BACKEND / 'data' / 'app.db').as_posix()}"
+    # Na Vercelu bez DATABASE_URL: SQLite w /tmp (dane ulotne — docelowo Neon Postgres).
+    database_url: str = (
+        "sqlite:////tmp/app.db" if os.environ.get("VERCEL") else f"sqlite:///{(BACKEND / 'data' / 'app.db').as_posix()}"
+    )
     cors_origins: str = "http://localhost:5173"
 
 

@@ -14,3 +14,22 @@ Każda ocena AI pokazuje cytat z tekstu, na którym się opiera — podświetlon
 - Plan prac: [Issues](https://github.com/Drop-the-Base/dezanalfabetyzator/issues)
 
 > Status: planowanie. Kod aplikacji powstaje w trakcie hackathonu (od 3.10.2026, 23:00).
+
+## Uruchomienie lokalnie
+Wymagane: [uv](https://docs.astral.sh/uv/), Node 20+.
+
+```bash
+cp .env.example .env          # wpisz GROQ_API_KEY i LLM_PROVIDER=groq (bez klucza działa tryb mock)
+npm install && npm run setup  # zależności backendu (uv) i frontendu
+npm run demo-reset            # baza z historiami demo
+npm run dev                   # backend :8000 + frontend :5173
+```
+Telefony w tej samej sieci Wi-Fi: `http://<IP-komputera>:5173`.
+
+Inne: `npm test` (testy backendu), `npm run lint`, `npm run requirements` (odświeża `requirements.txt` dla Vercela po zmianie zależności).
+
+## Deploy (Vercel)
+- Frontend: statyczny build `frontend/dist`; backend: `api/index.py` (FastAPI jako funkcja Python). Konfiguracja w `vercel.json`.
+- Zmienne środowiskowe: `LLM_PROVIDER=groq`, `GROQ_API_KEY`, `GROQ_MODEL`, `DATABASE_URL` (Neon Postgres z Vercel Marketplace).
+- Bez `DATABASE_URL` aplikacja używa SQLite w `/tmp` — działa, ale dane znikają (tylko do pierwszego testu).
+- Dane demo na produkcji: `DATABASE_URL=<neon-url> npm run seed`.

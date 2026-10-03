@@ -1,0 +1,7 @@
+backend/.venv
+backend/data
+backend/tests
+**/node_modules
+**/__pycache__
+*.pdf
+.env

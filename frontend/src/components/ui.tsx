@@ -1,0 +1,159 @@
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
+import type { Author } from "../lib/api";
+import { APP_NAME, AVATARS } from "../lib/brand";
+import { useSession } from "../lib/session";
+
+/** Sowa — głos AI w aplikacji. */
+export function Mascot({ size = 56, thinking = false }: { size?: number; thinking?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className={thinking ? "animate-bounce" : ""}>
+      <ellipse cx="32" cy="38" rx="22" ry="22" fill="#7c3aed" />
+      <ellipse cx="32" cy="44" rx="13" ry="13" fill="#ede9fe" />
+      <path d="M12 22 L20 30 L14 32 Z M52 22 L44 30 L50 32 Z" fill="#6d28d9" />
+      <circle cx="23" cy="32" r="9" fill="#fff" />
+      <circle cx="41" cy="32" r="9" fill="#fff" />
+      {thinking ? (
+        <>
+          <path d="M18 32 q5 -4 10 0" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+          <path d="M36 32 q5 -4 10 0" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <circle cx="24" cy="32" r="4" fill="#1f2937" />
+          <circle cx="40" cy="32" r="4" fill="#1f2937" />
+          <circle cx="25.5" cy="30.5" r="1.3" fill="#fff" />
+          <circle cx="41.5" cy="30.5" r="1.3" fill="#fff" />
+        </>
+      )}
+      <path d="M29 38 L32 43 L35 38 Z" fill="#f97316" />
+    </svg>
+  );
+}
+
+export function Avatar({ author, size = "md" }: { author: Pick<Author, "avatar" | "is_ai">; size?: "sm" | "md" | "lg" }) {
+  const dims = { sm: "h-7 w-7 text-base", md: "h-10 w-10 text-xl", lg: "h-14 w-14 text-3xl" }[size];
+  if (author.is_ai) {
+    return (
+      <span className={`${dims} inline-grid place-items-center rounded-full bg-ai-soft ring-2 ring-white`}>
+        <Mascot size={size === "lg" ? 44 : size === "md" ? 32 : 22} />
+      </span>
+    );
+  }
+  return (
+    <span className={`${dims} inline-grid place-items-center rounded-full bg-baton-soft ring-2 ring-white`}>
+      {AVATARS[author.avatar] ?? "🙂"}
+    </span>
+  );
+}
+
+export function AvatarStack({ authors, max = 5 }: { authors: Author[]; max?: number }) {
+  const shown = authors.slice(0, max);
+  return (
+    <div className="flex -space-x-2">
+      {shown.map((a, i) => (
+        <Avatar key={`${a.id}-${i}`} author={a} size="sm" />
+      ))}
+      {authors.length > max && (
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-line text-xs font-bold ring-2 ring-white">
+          +{authors.length - max}
+        </span>
+      )}
+    </div>
+  );
+}
+
+export function TopBar({ back, title }: { back?: string; title?: string }) {
+  const { user, logout } = useSession();
+  return (
+    <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur pt-[env(safe-area-inset-top)]">
+      <div className="mx-auto flex max-w-xl items-center gap-3 px-4 py-3">
+        {back ? (
+          <Link to={back} className="-ml-2 rounded-full p-2 text-2xl leading-none hover:bg-baton-soft" aria-label="Wróć">
+            ←
+          </Link>
+        ) : (
+          <span className="text-2xl" aria-hidden>
+            🏃
+          </span>
+        )}
+        <h1 className="min-w-0 flex-1 truncate text-lg font-black tracking-tight">{title ?? APP_NAME}</h1>
+        {user && (
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 rounded-full bg-card py-1 pl-1 pr-3 text-sm font-bold shadow-sm"
+            title="Wyloguj"
+          >
+            <Avatar author={{ avatar: user.avatar, is_ai: false }} size="sm" />
+            {user.nick}
+          </button>
+        )}
+      </div>
+    </header>
+  );
+}
+
+export function Button({
+  children,
+  variant = "primary",
+  className = "",
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" | "ai" }) {
+  const styles = {
+    primary: "bg-baton text-white shadow-[0_4px_0_var(--color-baton-dark)] active:translate-y-[2px] active:shadow-[0_2px_0_var(--color-baton-dark)]",
+    ai: "bg-ai text-white shadow-[0_4px_0_#5b21b6] active:translate-y-[2px] active:shadow-[0_2px_0_#5b21b6]",
+    ghost: "bg-card text-ink border-2 border-line",
+  }[variant];
+  return (
+    <button
+      {...props}
+      className={`rounded-2xl px-5 py-3 text-base font-extrabold transition disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none ${styles} ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* --- Toasty („Kuba przejął pałeczkę!”) --- */
+interface Toast {
+  id: number;
+  text: string;
+  icon: ReactNode;
+}
+const ToastCtx = createContext<(text: string, icon?: ReactNode) => void>(() => {});
+
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const push = useCallback((text: string, icon: ReactNode = "✨") => {
+    const id = Date.now() + Math.random();
+    setToasts((t) => [...t.slice(-2), { id, text, icon }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
+  }, []);
+  return (
+    <ToastCtx.Provider value={push}>
+      {children}
+      <div className="pointer-events-none fixed inset-x-0 top-16 z-50 flex flex-col items-center gap-2 px-4">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className="animate-slide-up flex max-w-sm items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-white shadow-lg"
+          >
+            <span className="text-lg">{t.icon}</span>
+            {t.text}
+          </div>
+        ))}
+      </div>
+    </ToastCtx.Provider>
+  );
+}
+
+export const useToast = () => useContext(ToastCtx);
+
+export function timeAgo(iso: string): string {
+  const d = new Date(iso.endsWith("Z") || iso.includes("+") ? iso : iso + "Z");
+  const s = Math.max(0, (Date.now() - d.getTime()) / 1000);
+  if (s < 60) return "przed chwilą";
+  if (s < 3600) return `${Math.floor(s / 60)} min temu`;
+  if (s < 86400) return `${Math.floor(s / 3600)} godz. temu`;
+  return `${Math.floor(s / 86400)} dni temu`;
+}

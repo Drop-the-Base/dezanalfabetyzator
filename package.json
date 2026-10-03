@@ -1,0 +1,19 @@
+{
+  "name": "sztafeta-slow",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:web": "npm --prefix frontend run dev",
+    "setup": "cd backend && uv sync && cd .. && npm --prefix frontend install",
+    "seed": "cd backend && uv run python -m app.seed",
+    "demo-reset": "cd backend && uv run python -m app.seed --reset",
+    "test": "cd backend && uv run pytest -q",
+    "lint": "cd backend && uv run ruff check app tests && cd .. && npm --prefix frontend run lint",
+    "build": "npm --prefix frontend run build",
+    "requirements": "cd backend && uv export --no-dev --no-hashes --no-emit-project --format requirements-txt -o ../requirements.txt"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
