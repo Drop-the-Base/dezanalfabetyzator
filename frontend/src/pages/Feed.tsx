@@ -4,7 +4,7 @@ import { api, type Story } from "../lib/api";
 import { AGE_LABELS, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
-import { AvatarStack, Mascot, TopBar, timeAgo } from "../components/ui";
+import { AvatarStack, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
 
 export default function Feed() {
   const { user } = useSession();
@@ -31,6 +31,7 @@ export default function Feed() {
   return (
     <>
       <TopBar />
+      <TabBar />
       <main className="mx-auto max-w-xl px-4 pb-32 pt-4">
         <section className="flex items-center gap-3 rounded-3xl bg-ai-soft p-4">
           <Mascot size={52} />
