@@ -45,6 +45,7 @@ class StoryOut(BaseModel):
     segment_count: int
     authors: list[AuthorOut]
     last_author_id: int | None
+    last_human_author_id: int | None  # sztafeta: kto ostatni z dzieci dopisał fragment
     created_at: datetime
     updated_at: datetime
 
@@ -127,6 +128,7 @@ def stories_out(session: Session, stories: list[Story]) -> list[StoryOut]:
             StoryOut(
                 id=st.id, title=st.title, theme=st.theme, age_group=st.age_group, segment_count=len(segs),
                 authors=list(seen.values()), last_author_id=segs[-1].author_id if segs else None,
+                last_human_author_id=next((x.author_id for x in reversed(segs) if x.author_id), None),
                 created_at=st.created_at, updated_at=st.updated_at,
             )
         )

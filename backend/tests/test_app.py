@@ -74,6 +74,7 @@ def test_full_relay_flow(client):
     ).json()
     assert r["moderation"]["verdict"] == "ok"
     assert r["segment"]["status"] == "approved"
+    assert r["ai_segment"]["author"]["is_ai"]  # narrator od razu dopisał ciąg dalszy
     assert r["comprehension"]["score"] >= 80
     first_text = client.get(f"/api/stories/{sid}", headers=zosia).json()["segments"][0]["text"]
     assert r["comprehension"]["evidence"] in first_text
@@ -82,19 +83,32 @@ def test_full_relay_flow(client):
     r2 = client.post(f"/api/stories/{sid}/segments", json={"text": "I jeszcze jedno zdanie ode mnie."}, headers=zosia)
     assert r2.status_code == 409
 
-    # Oderwana kontynuacja → publikowana, ale niska ocena
+    # Oderwana kontynuacja → NIE wchodzi do historii, autor musi napisać jeszcze raz
     r3 = client.post(
         f"/api/stories/{sid}/segments", json={"text": "Wczoraj grałem w piłkę na boisku z kolegami."}, headers=kuba
     ).json()
-    assert r3["segment"]["status"] == "approved"
+    assert r3["segment"]["status"] == "rejected"
+    assert r3["ai_segment"] is None
     assert r3["comprehension"]["verdict"] == "not_understood"
+    assert r3["comprehension"]["evidence"]  # wskazówka, do czego nawiązać
+
+    # Poprawiona wersja → wchodzi
+    r3b = client.post(
+        f"/api/stories/{sid}/segments",
+        json={"text": "Smok Fafik z latarenką doszedł w ciemności do miejsca, skąd dobiegało pukanie w jaskini."},
+        headers=kuba,
+    ).json()
+    assert r3b["segment"]["status"] == "approved"
 
     # Wulgaryzm → odrzucone, nie pojawia się w historii
     r4 = client.post(f"/api/stories/{sid}/segments", json={"text": "Smok powiedział: kurwa, ciemno."}, headers=zosia)
     assert r4.json()["moderation"]["verdict"] == "reject"
     detail = client.get(f"/api/stories/{sid}", headers=zosia).json()
-    assert len(detail["segments"]) == 3
-    assert {a["nick"] for a in detail["authors"]} == {"Narrator AI", "Zosia", "Kuba"}
+    # Historia się przeplata: AI → dziecko → AI → dziecko → AI
+    assert [seg["author"]["nick"] for seg in detail["segments"]] == [
+        "Narrator AI", "Zosia", "Narrator AI", "Kuba", "Narrator AI"
+    ]
+    assert detail["last_human_author_id"] == detail["segments"][3]["author"]["id"]
 
 
 def test_updates_polling(client):

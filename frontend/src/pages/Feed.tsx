@@ -66,7 +66,7 @@ export default function Feed() {
             </li>
           )}
           {list.map((s) => {
-            const myTurn = s.last_author_id !== user?.id;
+            const myTurn = s.last_human_author_id !== user?.id;
             return (
               <li key={s.id}>
                 <Link

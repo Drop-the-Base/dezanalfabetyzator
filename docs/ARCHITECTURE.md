@@ -1,22 +1,22 @@
 # Architektura — Sztafeta Słów (MVP)
 
 ## Idea w jednym zdaniu
-Dzieci (7–18 lat) piszą historyjki „sztafetą”: czytają fragment napisany przez kogoś innego (albo przez AI) i dopisują ciąg dalszy. AI pilnuje bezpieczeństwa treści i sprawdza, czy kontynuacja świadczy o **przeczytaniu ze zrozumieniem**.
+Dzieci (7–18 lat) piszą historyjki „sztafetą” na zmianę z AI: AI → dziecko → AI → dziecko… Każde dziecko czyta to, co było wcześniej, i dopisuje ciąg dalszy, a narrator AI od razu odpowiada swoim fragmentem. AI pilnuje bezpieczeństwa treści i sprawdza, czy kontynuacja świadczy o **przeczytaniu ze zrozumieniem**.
 
 ## Pętla użytkownika
 ```
 AI (lub dziecko) zaczyna historię
         │
         ▼
-Dziecko A czyta ──► pisze ciąg dalszy ──► AI: moderacja ──► AI: ocena zrozumienia ──► publikacja
-                                             │ odrzucone           (komentarz + cytat z tekstu)
-                                             ▼
-                                   przyjazny komunikat, popraw i wyślij ponownie
+Dziecko A czyta ──► pisze ciąg dalszy ──► AI: moderacja ──► AI: ocena zrozumienia ──► publikacja ──► AI: narrator dopisuje swój fragment
+                                             │ odrzucone           │ „nie łączy się”
+                                             ▼                     ▼
+                         przyjazny komunikat; tekst zostaje w polu, dziecko poprawia i wysyła ponownie
         │
         ▼
-Dziecko B widzi nowy fragment na swoim telefonie (live) i pisze dalej ... (pętla)
+Dziecko B widzi oba nowe fragmenty na swoim telefonie (live) i pisze dalej ... (pętla)
 ```
-Zasada sztafety: nie można dopisać dwóch fragmentów pod rząd — trzeba przeczytać, co dopisał ktoś inny.
+Zasada sztafety: między fragmentami AI piszą różne dzieci — ta sama osoba nie dopisze dwóch „ludzkich” fragmentów z rzędu, trzeba przeczytać, co dopisał ktoś inny.
 
 ## Komponenty
 ```
@@ -52,7 +52,7 @@ api/index.py   wejście funkcji Python na Vercelu (importuje backend)
 
 ## Weryfikacja wyników AI
 - Każda ocena zrozumienia zawiera **dosłowny cytat z wcześniejszego tekstu** (dowód). Backend sprawdza, że cytat naprawdę jest w tekście (inaczej go odrzuca), a frontend **podświetla go w historii** — dziecko widzi, na czym AI oparło ocenę.
-- Ocena zrozumienia **nie blokuje** publikacji — AI doradza, nie cenzuruje. Blokuje tylko moderacja.
+- Fragment ocenony jako **„nie łączy się z historią”** nie wchodzi do historii — dziecko dostaje wskazówkę z cytatem i poprawia swój tekst (zostaje w polu). Ocena „częściowo” przepuszcza fragment. Awaria LLM przy ocenie nie blokuje dzieci.
 - Każda decyzja AI jest zapisana w `AIReview` (model, werdykt, uzasadnienie, surowy JSON).
 
 ## Ograniczenia

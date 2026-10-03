@@ -34,6 +34,7 @@ export interface Story {
   segment_count: number;
   authors: Author[];
   last_author_id: number | null;
+  last_human_author_id: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -60,6 +61,7 @@ export interface SubmitResult {
   segment: Segment | null;
   moderation: { verdict: "ok" | "reject"; reason: string; categories: string[] };
   comprehension: Review | null;
+  ai_segment: Segment | null;
   story_id: number | null;
 }
 

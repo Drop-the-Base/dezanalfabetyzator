@@ -66,7 +66,7 @@ sequenceDiagram
     participant C as LLM: ocena zrozumienia
     participant DB as Baza
     D->>API: POST /api/stories/{id}/segments
-    API->>API: zasada sztafety (nie dwa razy pod rząd), limit długości
+    API->>API: zasada sztafety (to samo dziecko nie dwa razy z rzędu), limit długości
     API->>W: wulgaryzmy?
     alt znalezione
         W-->>D: odrzucone + życzliwy komunikat (bez LLM)
@@ -79,7 +79,12 @@ sequenceDiagram
             C-->>API: JSON: score, verdict, komentarz, cytat
             API->>API: walidacja Pydantic + sprawdzenie, że cytat jest w tekście
             API->>DB: Segment + AIReview (model, werdykt, surowy JSON)
-            API-->>D: opublikowane + komentarz + podświetlony cytat
+            alt not_understood
+                API-->>D: do poprawy + wskazówka + podświetlony cytat
+            else understood / partially
+                API->>DB: AI-narrator dopisuje kolejny fragment (po moderacji)
+                API-->>D: opublikowane + komentarz + cytat + fragment AI
+            end
         end
     end
     Note over D,DB: Pozostałe telefony pobierają zmiany przez GET /api/updates?since=…
@@ -124,7 +129,7 @@ Historia jest w pełni widoczna w `git log` (commity mają znaczniki czasu). W s
 
 **Jak użytkownik weryfikuje wynik AI:**
 - Ocena zrozumienia zawsze wskazuje **dosłowny cytat** z wcześniejszego tekstu. Backend odrzuca cytat, którego nie ma w tekście (ochrona przed halucynacją), a frontend podświetla go w historii — dziecko lub nauczyciel widzi, na czym AI oparło ocenę, i sam ocenia, czy ma ona sens.
-- Ocena **nie blokuje** publikacji — AI doradza, nie cenzuruje. Blokuje tylko moderacja.
+- Fragment, który w ogóle nie łączy się z historią, wraca do autora do poprawy (z cytatem, do czego nawiązać); „częściowo” przechodzi.
 - Pełny zapis decyzji AI (`GET /api/segments/{id}/reviews`) pozwala sprawdzić model, werdykt i uzasadnienie.
 
 **Ograniczenia:**
