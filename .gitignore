@@ -48,3 +48,7 @@ Thumbs.db
 
 # Logi
 *.log
+
+# Vercel (lokalne powiązanie z projektem — nie commitować)
+.vercel/
+vercel.zip
