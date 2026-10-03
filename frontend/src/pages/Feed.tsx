@@ -123,7 +123,7 @@ export default function Feed() {
       <div className="fixed inset-x-0 bottom-0 z-10 bg-gradient-to-t from-paper via-paper to-transparent px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-6">
         <Link
           to="/nowa"
-          className="mx-auto flex max-w-xl items-center justify-center gap-2 rounded-2xl bg-baton py-4 text-lg font-extrabold text-white shadow-[0_4px_0_var(--color-baton-dark)]"
+          className="mx-auto flex max-w-xl items-center justify-center gap-2 rounded-2xl bg-baton py-4 text-lg font-extrabold text-white hover:bg-baton-dark"
         >
           + Nowa historia
         </Link>

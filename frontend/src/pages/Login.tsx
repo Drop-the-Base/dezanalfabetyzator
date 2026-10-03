@@ -103,7 +103,7 @@ export default function Login() {
                 onClick={() => setAvatar(key)}
                 aria-pressed={avatar === key}
                 className={`aspect-square rounded-2xl text-4xl transition ${
-                  avatar === key ? "scale-105 bg-baton-soft ring-4 ring-baton" : "bg-card ring-2 ring-line"
+                  avatar === key ? "bg-baton-soft ring-2 ring-baton" : "bg-card ring-1 ring-line"
                 }`}
               >
                 {emoji}
