@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type LikeState, type Story } from "../lib/api";
 import { AGE_LABELS, etapy } from "../lib/brand";
+import { JuryHint } from "../components/jury";
 import { AvatarStack, LikeButton, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
 
 const REFRESH_MS = 5000;
@@ -45,10 +46,13 @@ export default function Trending() {
         <section className="flex items-center gap-3 rounded-3xl bg-ai-soft p-4">
           <Mascot size={52} />
           <p className="text-sm font-semibold text-ai">
-            Te historie zbierają najwięcej serduszek! Przeczytaj je i dopisz swój kawałek. Kliknij 🤍, jeśli Ci się
-            podoba.
+            Te historie zbierają najwięcej serduszek! Przeczytaj je i kliknij 🤍, jeśli Ci się podobają.
           </p>
         </section>
+        <JuryHint>
+          Ranking: serduszka z premią za świeżość. Historie „na topie” są <b>tylko do czytania i oceniania</b> — nie
+          można ich dopisywać, ale można zaznaczyć niespójny fragment i zaproponować poprawkę.
+        </JuryHint>
 
         <ol className="mt-4 flex flex-col gap-3">
           {stories === null &&
@@ -68,7 +72,7 @@ export default function Trending() {
           {stories?.map((s, i) => (
             <li key={s.id}>
               <Link
-                to={`/historia/${s.id}`}
+                to={`/historia/${s.id}?czytaj=1`}
                 className={`flex items-center gap-3 rounded-3xl bg-card p-4 shadow-sm ring-1 transition active:scale-[0.99] ${
                   i < 3 ? "ring-2 ring-baton" : "ring-line"
                 }`}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type LikeState, type Story } from "../lib/api";
-import { AGE_LABELS, JURY, etapy } from "../lib/brand";
+import { AGE_LABELS, etapy } from "../lib/brand";
+import { useJury } from "../lib/jury";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
 import { AvatarStack, LikeButton, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
@@ -9,6 +10,7 @@ import JuryPanel from "../components/JuryPanel";
 
 export default function Feed() {
   const { user } = useSession();
+  const { jury } = useJury();
   const [stories, setStories] = useState<Story[] | null>(null);
   const [onlyMine, setOnlyMine] = useState(false);
   const [fresh, setFresh] = useState<Set<number>>(new Set());
@@ -45,7 +47,7 @@ export default function Feed() {
           </p>
         </section>
 
-        {user?.nick === JURY.nick && <JuryPanel onReset={() => api.stories().then(setStories)} />}
+        {jury && <JuryPanel onReset={() => api.stories().then(setStories)} />}
 
         <div className="mt-5 flex gap-2">
           {[

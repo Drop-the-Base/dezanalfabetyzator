@@ -110,6 +110,7 @@ export interface Updates {
 }
 
 const TOKEN_KEY = "sztafeta.token";
+export const UNAUTHORIZED_EVENT = "sztafeta:unauthorized";
 
 export function getToken(): string | null {
   try {
@@ -154,6 +155,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       else if (Array.isArray(body.detail)) msg = "Sprawdź, czy wszystko jest dobrze wypełnione.";
     } catch {
       /* brak JSON */
+    }
+    if (res.status === 401 && token) {
+      // Nieważny token — wyloguj zamiast w kółko pokazywać „Sesja wygasła”.
+      setToken(null);
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
     }
     throw new ApiError(res.status, msg);
   }

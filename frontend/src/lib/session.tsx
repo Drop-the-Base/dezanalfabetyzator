@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, ApiError, getToken, setToken, type AgeGroup, type User } from "./api";
+import { api, ApiError, getToken, setToken, UNAUTHORIZED_EVENT, type AgeGroup, type User } from "./api";
 
 interface SessionCtx {
   user: User | null;
@@ -23,6 +23,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (e instanceof ApiError && e.status === 401) setToken(null);
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const onUnauthorized = () => setUser(null);
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
   }, []);
 
   const login = useCallback(async (nick: string, avatar: string, age: AgeGroup) => {

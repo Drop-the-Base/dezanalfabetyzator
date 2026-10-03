@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { JuryProvider } from "./lib/jury";
 import { LiveProvider } from "./lib/live";
 import { SessionProvider, useSession } from "./lib/session";
 import { Mascot, ToastProvider } from "./components/ui";
@@ -36,11 +37,13 @@ function Routed() {
 export default function App() {
   return (
     <BrowserRouter>
-      <SessionProvider>
-        <ToastProvider>
-          <Routed />
-        </ToastProvider>
-      </SessionProvider>
+      <JuryProvider>
+        <SessionProvider>
+          <ToastProvider>
+            <Routed />
+          </ToastProvider>
+        </SessionProvider>
+      </JuryProvider>
     </BrowserRouter>
   );
 }

@@ -1,11 +1,12 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api, ApiError, type Review, type Segment, type StoryDetail, type SubmitResult } from "../lib/api";
 import { AGE_LABELS, MAX_LEN, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
 import { Avatar, Button, LikeButton, Mascot, TopBar, useToast } from "../components/ui";
 import { CorrectedBadge, CorrectionSheet, useSegmentSelection } from "../components/corrections";
+import { JuryHint } from "../components/jury";
 import type { Correction } from "../lib/api";
 
 /** Znajduje cytat w tekście mimo różnic w białych znakach. Zwraca [start, end] albo null. */
@@ -141,6 +142,10 @@ export default function Story() {
   const { id } = useParams();
   const storyId = Number(id);
   const navigate = useNavigate();
+  // Z zakładki „Na topie”: tylko czytanie, serduszka i poprawki — bez dopisywania.
+  const [params] = useSearchParams();
+  const readOnly = params.has("czytaj");
+  const back = readOnly ? "/na-topie" : "/";
   const { user } = useSession();
   const toast = useToast();
   const [story, setStory] = useState<StoryDetail | null>(null);
@@ -239,7 +244,7 @@ export default function Story() {
   if (!story) {
     return (
       <>
-        <TopBar back="/" title="Historia" />
+        <TopBar back={back} title="Historia" />
         <main className="mx-auto max-w-xl p-4">
           {error ? <p className="font-bold text-bad">{error}</p> : <div className="h-64 animate-pulse rounded-3xl bg-card" />}
         </main>
@@ -254,7 +259,7 @@ export default function Story() {
 
   return (
     <div data-age={user?.age_group}>
-      <TopBar back="/" title={story.title} />
+      <TopBar back={back} title={story.title} />
       <main className="mx-auto max-w-xl px-4 pb-8 pt-4">
         <div className="mb-4 flex items-center gap-2 text-sm font-bold text-muted">
           <span className="rounded-full bg-card px-2 py-0.5 ring-1 ring-line">{AGE_LABELS[story.age_group]}</span>
@@ -341,7 +346,22 @@ export default function Story() {
             />
           )}
 
-          {!result &&
+          {readOnly && (
+            <div className="flex items-start gap-3 rounded-3xl bg-card p-5 ring-1 ring-line">
+              <span className="text-3xl">📖</span>
+              <p className="font-semibold text-muted">
+                Ta historia jest <b>na topie</b> — można ją czytać i oceniać serduszkiem 🤍. Widzisz coś niespójnego?
+                Zaznacz ten kawałek tekstu i zaproponuj poprawkę.
+              </p>
+            </div>
+          )}
+          <JuryHint>
+            Poprawki: zaznacz kilka słów w cudzym fragmencie → „🤔 To nie jest spójne?” → wpisz swoją wersję. Na
+            telefonie możesz też użyć „🔍 Zgłoś niespójność” pod fragmentem.
+          </JuryHint>
+
+          {!readOnly &&
+            !result &&
             (busy ? (
               <div className="flex items-center gap-3 rounded-3xl bg-ai-soft p-5">
                 <Mascot size={52} thinking />
