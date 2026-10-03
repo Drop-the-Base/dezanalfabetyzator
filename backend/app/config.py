@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     llm_provider: str = "mock"  # groq | mock
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"
     groq_moderation_model: str = ""
     llm_timeout_s: float = 20.0
 
