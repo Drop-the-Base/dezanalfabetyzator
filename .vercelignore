@@ -1,6 +1,9 @@
 backend/.venv
 backend/data
 backend/tests
+backend/uv.lock
+backend/pyproject.toml
+backend/.python-version
 **/node_modules
 **/__pycache__
 *.pdf

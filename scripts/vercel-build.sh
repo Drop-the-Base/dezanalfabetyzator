@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # Build frontendu na Vercelu. Dopóki nie ma frontend/ — strona zastępcza.
-set -euo pipefail
+# Upewnij się, że uv jest w PATH dla Vercel Python builder
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv not found in PATH, attempting to install..."
+  curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null || true
+  if [ -f "$HOME/.local/bin/uv" ]; then
+    sudo cp "$HOME/.local/bin/uv" /usr/local/bin/uv 2>/dev/null || cp "$HOME/.local/bin/uv" /usr/local/bin/uv 2>/dev/null || true
+  fi
+fi
 
 if [ -f frontend/package.json ]; then
   npm --prefix frontend ci
