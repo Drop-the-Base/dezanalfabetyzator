@@ -168,3 +168,9 @@ def test_demo_flow_continues_smok_after_reset(client, pin):
         headers=zosia,
     )
     assert r.status_code == 200 and r.json()["segment"]["status"] == "approved"
+
+
+def test_empty_db_gets_demo_stories(client):
+    # pusta baza: pierwsza lista historii sama wstawia dane demo
+    stories = client.get("/api/stories", headers=login(client, "Ola")).json()
+    assert {s["title"] for s in stories} == {s.title for s in DEMO_STORIES}

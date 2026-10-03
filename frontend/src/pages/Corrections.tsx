@@ -4,7 +4,6 @@ import { api, type Correction, type ToFix } from "../lib/api";
 import { useLive } from "../lib/live";
 import { Avatar, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
 import { CorrectionCard } from "../components/corrections";
-import { JuryHint } from "../components/jury";
 
 /** Zakładka „Poprawki” — ostatnie poprawki z werdyktami AI + fragmenty do poprawienia (#32). */
 export default function Corrections() {
@@ -30,11 +29,6 @@ export default function Corrections() {
             czy pasuje do tego, co było wcześniej.
           </p>
         </section>
-        <JuryHint>
-          Jak przetestować: otwórz fragment z listy „Do poprawienia”, <b>zaznacz palcem lub myszką</b> kilka słów
-          w cudzym tekście, kliknij „To nie jest spójne?” i wpisz swoją wersję. AI przyjmie poprawkę tylko wtedy,
-          gdy usuwa niespójność z wcześniejszym tekstem — pokaże też cytat-dowód.
-        </JuryHint>
 
         <h2 className="mt-6 text-lg font-black">Do poprawienia</h2>
         <p className="text-sm text-muted">Fragmenty, które tylko częściowo łączą się z historią.</p>

@@ -1,9 +1,7 @@
 import { useState } from "react";
 import type { AgeGroup } from "../lib/api";
-import { AGE_LABELS, APP_NAME, AVATARS, JURY, TAGLINE } from "../lib/brand";
-import { useJury } from "../lib/jury";
+import { AGE_LABELS, APP_NAME, AVATARS, TAGLINE } from "../lib/brand";
 import { useSession } from "../lib/session";
-import { JuryToggle } from "../components/jury";
 import { Button, Mascot } from "../components/ui";
 import HowItWorks from "../components/HowItWorks";
 
@@ -15,24 +13,9 @@ const DEMO: { nick: string; avatar: string; age: AgeGroup }[] = [
 
 export default function Login() {
   const { login } = useSession();
-  const { jury, setJury } = useJury();
-  const [nick, setNick] = useState(jury ? JURY.nick : "");
-  const [avatar, setAvatar] = useState(jury ? JURY.avatar : "fox");
-  const [age, setAge] = useState<AgeGroup>(jury ? JURY.age : "7-10");
-
-  // Tryb jury wypełnia formularz danymi jury; wyłączenie czyści je z powrotem.
-  const toggleJury = (on: boolean) => {
-    setJury(on);
-    if (on) {
-      setNick(JURY.nick);
-      setAvatar(JURY.avatar);
-      setAge(JURY.age);
-    } else if (nick === JURY.nick) {
-      setNick("");
-      setAvatar("fox");
-      setAge("7-10");
-    }
-  };
+  const [nick, setNick] = useState("");
+  const [avatar, setAvatar] = useState("fox");
+  const [age, setAge] = useState<AgeGroup>("7-10");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -49,10 +32,7 @@ export default function Login() {
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-5 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
-      <div className="mb-4 flex justify-end">
-        <JuryToggle label="Tryb jury" onToggle={toggleJury} />
-      </div>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-5 pb-8 pt-[max(2rem,env(safe-area-inset-top))]">
       <div className="animate-pop flex flex-col items-center text-center">
         <Mascot size={88} />
         <h1 className="mt-3 text-4xl font-black tracking-tight">{APP_NAME}</h1>
@@ -62,16 +42,6 @@ export default function Login() {
       <div className="mt-6">
         <HowItWorks />
       </div>
-
-      {jury && (
-        <section className="mt-6 rounded-3xl bg-ink p-4 text-white">
-          <p className="font-black">Tryb jury</p>
-          <p className="mt-1 text-sm font-semibold opacity-90">
-            Profil „Jury” jest już wpisany — wystarczy kliknąć „Wbiegam do sztafety!”. Na liście historii czeka krótki
-            scenariusz testu (4 kroki) i przycisk resetu danych. Możesz też wpisać własne imię i wiek.
-          </p>
-        </section>
-      )}
 
       <form
         className="mt-8 flex flex-col gap-6"

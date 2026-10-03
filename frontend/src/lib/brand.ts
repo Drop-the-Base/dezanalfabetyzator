@@ -20,9 +20,6 @@ export const AGE_LABELS: Record<AgeGroup, string> = {
   "15-18": "15+",
 };
 
-/** Profil jury: jedno kliknięcie na ekranie logowania, widzi panel „Resetuj demo”. */
-export const JURY = { nick: "Jury", avatar: "owl", age: "15-18" as AgeGroup };
-
 export const MAX_LEN: Record<AgeGroup, number> = { "7-10": 400, "11-14": 800, "15-18": 1200 };
 
 /** Odmiana „etap”: 1 etap, 2–4 etapy, 5+ etapów (12–14 etapów). */

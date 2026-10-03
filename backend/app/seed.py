@@ -1,6 +1,7 @@
 """Dane demo. `uv run python -m app.seed` (idempotentne) lub `--reset` (czyści bazę).
 
-Zestaw historii: app/demo_data.py. Ten sam reset robi `POST /api/admin/reset` (tryb jury, PIN z RESET_PIN).
+Zestaw historii: app/demo_data.py. Ten sam reset robi `POST /api/admin/reset` (strona /reset, PIN z RESET_PIN).
+Pusta baza dostaje dane demo sama przy pierwszym `GET /api/stories` (`ensure_demo`).
 Bez wywołań LLM — działa tak samo z Groq i z mockiem.
 """
 
@@ -112,6 +113,15 @@ def seed_demo(s: Session) -> dict[str, int]:
     return counts
 
 
+def ensure_demo(s: Session) -> bool:
+    """Gdy w bazie nie ma żadnej historii — wstawia dane demo (nikt nie trafi na pustą listę)."""
+    if s.exec(select(Story)).first():
+        return False
+    seed_demo(s)
+    s.commit()
+    return True
+
+
 def reset_and_seed(bind: Engine = engine) -> dict[str, int]:
     """Pełny reset bazy + dane demo (CLI `--reset` i POST /api/admin/reset)."""
     reset_db(bind)
@@ -128,12 +138,8 @@ def seed(reset: bool = False) -> None:
         return
     init_db()
     with Session(engine) as s:
-        if s.exec(select(Story)).first():
-            print("Seed: dane już są — pomijam (użyj --reset).")
-            return
-        counts = seed_demo(s)
-        s.commit()
-    print(f"Seed: gotowe: {counts}")
+        done = ensure_demo(s)
+    print("Seed: gotowe." if done else "Seed: dane już są — pomijam (użyj --reset).")
 
 
 if __name__ == "__main__":

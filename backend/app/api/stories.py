@@ -114,6 +114,9 @@ def themes():
 
 @router.get("/stories", response_model=list[StoryOut])
 def list_stories(session: SessionDep, user: UserDep, age_group: AgeGroup | None = None):
+    from app.seed import ensure_demo  # import w funkcji: seed importuje moduły api
+
+    ensure_demo(session)
     q = select(Story).order_by(col(Story.updated_at).desc()).limit(50)
     if age_group:
         q = q.where(Story.age_group == age_group)
