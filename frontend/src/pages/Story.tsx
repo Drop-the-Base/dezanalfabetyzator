@@ -5,6 +5,8 @@ import { AGE_LABELS, MAX_LEN, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
 import { Avatar, Button, LikeButton, Mascot, TopBar, useToast } from "../components/ui";
+import { CorrectedBadge, CorrectionSheet, useSegmentSelection } from "../components/corrections";
+import type { Correction } from "../lib/api";
 
 /** Znajduje cytat w tekście mimo różnic w białych znakach. Zwraca [start, end] albo null. */
 function findQuote(text: string, quote: string): [number, number] | null {
@@ -134,6 +136,22 @@ export default function Story() {
     api.story(storyId).then(setStory).catch((e) => setError((e as Error).message));
   }, [storyId]);
 
+  // Poprawki (#32): znaczek „poprawione”, zaznaczanie cudzego tekstu, arkusz z propozycją
+  const [corrections, setCorrections] = useState<Correction[]>([]);
+  const [sheet, setSheet] = useState<{ segment: Segment; original: string } | null>(null);
+  const [selection, clearSelection] = useSegmentSelection();
+  const loadCorrections = () => api.storyCorrections(storyId).then(setCorrections).catch(() => {});
+  useEffect(() => {
+    api.storyCorrections(storyId).then(setCorrections).catch(() => {});
+  }, [storyId]);
+  useEffect(() => {
+    // link z zakładki „Poprawki”: /historia/1#seg-5
+    const el = story && window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [story?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const replaceSegment = (seg: Segment) =>
+    setStory((prev) => prev && { ...prev, segments: prev.segments.map((s) => (s.id === seg.id ? seg : s)) });
+
   const addSegments = (incoming: Segment[]) =>
     setStory((prev) => {
       if (!prev) return prev;
@@ -163,6 +181,12 @@ export default function Story() {
       .forEach((s) => toast(`${s.author.nick} przejął(-ęła) pałeczkę!`, "🏃"));
     if (fresh.length) setNewIds((n) => new Set([...n, ...fresh.map((s) => s.id)]));
     addSegments(fresh);
+    // Zaakceptowana poprawka zmienia tekst istniejącego fragmentu
+    const edited = segments.filter((s) => story?.segments.some((x) => x.id === s.id && x.text !== s.text));
+    if (edited.length) {
+      edited.forEach(replaceSegment);
+      loadCorrections();
+    }
   });
 
   const showEvidence = () => {
@@ -233,11 +257,12 @@ export default function Story() {
                 </li>
               )}
               <li
+                id={`seg-${s.id}`}
                 className={`rounded-3xl p-4 ${s.author.is_ai ? "bg-ai-soft" : "bg-card ring-1 ring-line"} ${
                   newIds.has(s.id) ? "animate-slide-up" : ""
                 }`}
               >
-                <div className="mb-2 flex items-center gap-2">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Avatar author={s.author} size="sm" />
                   <span className={`text-sm font-extrabold ${s.author.is_ai ? "text-ai" : ""}`}>{s.author.nick}</span>
                   {s.author.id === user?.id && s.comprehension_score !== null && (
@@ -245,10 +270,37 @@ export default function Story() {
                       zrozumienie: {s.comprehension_score}%
                     </span>
                   )}
+                  <CorrectedBadge corrections={corrections.filter((c) => c.segment_id === s.id)} />
                 </div>
-                <p className="story-text whitespace-pre-line">
+                <p
+                  className="story-text whitespace-pre-line"
+                  data-correctable={s.author.id !== user?.id ? s.id : undefined}
+                >
                   {s.id === lastMine ? s.text : <Highlighted text={s.text} quote={quote} markRef={markRef} />}
                 </p>
+                {s.author.id !== user?.id && (
+                  <div className="mt-2 flex justify-end">
+                    {selection?.segmentId === s.id ? (
+                      <button
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setSheet({ segment: s, original: selection.text });
+                          clearSelection();
+                        }}
+                        className="animate-pop rounded-full bg-mid px-3 py-1.5 text-sm font-extrabold text-white shadow"
+                      >
+                        🤔 To nie jest spójne?
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setSheet({ segment: s, original: "" })}
+                        className="rounded-full px-2 py-1 text-xs font-extrabold text-muted hover:bg-paper"
+                      >
+                        🔍 Zgłoś niespójność
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             </Fragment>
           ))}
@@ -307,6 +359,25 @@ export default function Story() {
             ))}
         </section>
       </main>
+      {sheet && (
+        <CorrectionSheet
+          segment={sheet.segment}
+          initial={sheet.original}
+          onClose={() => setSheet(null)}
+          onResult={(r) => {
+            setCorrections((prev) => [r.correction, ...prev]);
+            if (r.correction.status === "accepted") {
+              replaceSegment(r.segment);
+              setQuote(r.correction.proposed);
+            }
+          }}
+          onShowEvidence={(evidence) => {
+            setSheet(null);
+            setQuote(evidence);
+            showEvidence();
+          }}
+        />
+      )}
     </div>
   );
 }

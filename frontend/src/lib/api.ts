@@ -64,6 +64,36 @@ export interface Review {
   created_at: string;
 }
 
+/** Poprawka niespójności w cudzym fragmencie + werdykt AI (#32). */
+export interface Correction {
+  id: number;
+  segment_id: number;
+  story_id: number;
+  story_title: string;
+  author: Author;
+  segment_author: Author;
+  original: string;
+  proposed: string;
+  reason: string;
+  status: "pending" | "accepted" | "rejected";
+  ai_feedback: string;
+  evidence: string;
+  model: string;
+  created_at: string;
+}
+
+export interface CorrectionResult {
+  correction: Correction;
+  segment: Segment;
+  blocked_by_moderation: boolean;
+}
+
+export interface ToFix {
+  story_id: number;
+  story_title: string;
+  segment: Segment;
+}
+
 export interface SubmitResult {
   segment: Segment | null;
   moderation: { verdict: "ok" | "reject"; reason: string; categories: string[] };
@@ -142,6 +172,12 @@ export const api = {
   trending: () => request<Story[]>("/stories/trending"),
   like: (id: number) => request<LikeState>(`/stories/${id}/like`, { method: "POST" }),
   unlike: (id: number) => request<LikeState>(`/stories/${id}/like`, { method: "DELETE" }),
+  proposeCorrection: (segmentId: number, original: string, proposed: string, reason: string) =>
+    post<CorrectionResult>(`/segments/${segmentId}/corrections`, { original, proposed, reason }),
+  corrections: () => request<Correction[]>("/corrections"),
+  correctionsToFix: () => request<ToFix[]>("/corrections/to-fix"),
+  storyCorrections: (storyId: number) => request<Correction[]>(`/stories/${storyId}/corrections`),
+  segmentCorrections: (segmentId: number) => request<Correction[]>(`/segments/${segmentId}/corrections`),
   createStory: (title: string, text: string) => post<SubmitResult>("/stories", { title, text }),
   createAIStory: (theme: string) => post<Story>("/stories/ai", { theme }),
   addSegment: (storyId: number, text: string) => post<SubmitResult>(`/stories/${storyId}/segments`, { text }),

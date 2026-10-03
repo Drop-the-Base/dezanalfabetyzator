@@ -4,7 +4,13 @@ import re
 
 from pydantic import BaseModel
 
-from app.ai.schemas import ComprehensionResult, ModerationResult, StoryContinuation, StoryStart
+from app.ai.schemas import (
+    ComprehensionResult,
+    CorrectionJudgement,
+    ModerationResult,
+    StoryContinuation,
+    StoryStart,
+)
 
 STOP = set(
     "i a w z na do że się nie to jest był była było jak ale co po od o u za przez dla też już tak tylko "
@@ -78,7 +84,33 @@ class MockProvider:
             )
         if schema is ComprehensionResult:
             return self._comprehension(_section(user, "previous"), _section(user, "new"))
+        if schema is CorrectionJudgement:
+            return self._correction(
+                _section(user, "previous") or _section(user, "segment"),
+                _section(user, "original"),
+                _section(user, "proposed"),
+            )
         raise ValueError(f"MockProvider: nieznany schemat {schema}")
+
+    def _correction(self, previous: str, original: str, proposed: str) -> CorrectionJudgement:
+        """Akceptuj, jeśli propozycja ma więcej wspólnych słów z wcześniejszym tekstem niż oryginał."""
+        prev_stems = {_stem(w) for w in _words(previous)}
+        orig_hits = {_stem(w) for w in _words(original)} & prev_stems
+        prop_stems = {_stem(w) for w in _words(proposed)}
+        prop_hits = prop_stems & prev_stems
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?…])\s+", previous) if s.strip()]
+        best = max(sentences or [""], key=lambda s: len({_stem(w) for w in _words(s)} & prop_stems))
+        if len(prop_hits) > len(orig_hits):
+            return CorrectionJudgement(
+                verdict="accepted",
+                feedback_for_kid="Brawo, uważny czytelniku! Twoja poprawka pasuje do tego, co było wcześniej.",
+                evidence=best,
+            )
+        return CorrectionJudgement(
+            verdict="rejected",
+            feedback_for_kid="Hmm, nie widzę tu niespójności. Przeczytaj jeszcze raz wcześniejszą część i sprawdź.",
+            evidence=best,
+        )
 
     def _comprehension(self, previous: str, new: str) -> ComprehensionResult:
         prev_stems = {_stem(w) for w in _words(previous)}
