@@ -87,7 +87,7 @@ export default function NewStory() {
                   onClick={() => setTheme(t === theme ? "" : t)}
                   aria-pressed={theme === t}
                   className={`flex items-center gap-2 rounded-2xl px-3 py-3 text-left font-bold transition ${
-                    theme === t ? "bg-ai-soft ring-4 ring-ai" : "bg-card ring-2 ring-line"
+                    theme === t ? "bg-ai-soft ring-2 ring-ai" : "bg-card ring-1 ring-line"
                   }`}
                 >
                   {t}

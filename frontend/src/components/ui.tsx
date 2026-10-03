@@ -8,7 +8,7 @@ import { JuryResetButton, JuryToggle } from "./jury";
 /** Sowa — głos AI w aplikacji. */
 export function Mascot({ size = 56, thinking = false }: { size?: number; thinking?: boolean }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className={thinking ? "animate-bounce" : ""}>
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className={thinking ? "animate-breathe" : ""}>
       <ellipse cx="32" cy="38" rx="22" ry="22" fill="#7c3aed" />
       <ellipse cx="32" cy="44" rx="13" ry="13" fill="#ede9fe" />
       <path d="M12 22 L20 30 L14 32 Z M52 22 L44 30 L50 32 Z" fill="#6d28d9" />
@@ -131,8 +131,8 @@ export function Button({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" | "ai" }) {
   const styles = {
-    primary: "bg-baton text-white shadow-[0_4px_0_var(--color-baton-dark)] active:translate-y-[2px] active:shadow-[0_2px_0_var(--color-baton-dark)]",
-    ai: "bg-ai text-white shadow-[0_4px_0_#5b21b6] active:translate-y-[2px] active:shadow-[0_2px_0_#5b21b6]",
+    primary: "bg-baton text-white hover:bg-baton-dark active:bg-baton-dark",
+    ai: "bg-ai text-white hover:opacity-90",
     ghost: "bg-card text-ink border-2 border-line",
   }[variant];
   return (

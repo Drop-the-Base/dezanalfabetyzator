@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api, ApiError, type Review, type Segment, type StoryDetail, type SubmitResult } from "../lib/api";
 import { AGE_LABELS, MAX_LEN, etapy } from "../lib/brand";
@@ -86,7 +86,7 @@ function ResultCard({
   const weak = c?.verdict === "not_understood";
   const praise = PRAISE[(result.segment?.id ?? 0) % PRAISE.length];
   return (
-    <div className="animate-pop rounded-3xl bg-card p-5 shadow-lg ring-1 ring-line">
+    <div className="animate-pop rounded-3xl bg-card p-5 ring-1 ring-line">
       <div className="flex items-start gap-3">
         <Mascot size={52} />
         <div className="min-w-0 flex-1">
@@ -265,23 +265,17 @@ export default function Story() {
           </span>
         </div>
 
-        <ol className="flex flex-col gap-4">
-          {story.segments.map((s, i) => (
-            <Fragment key={s.id}>
-              {i > 0 && (
-                <li aria-hidden className="-my-2 flex items-center justify-center text-xs font-black uppercase tracking-widest text-baton">
-                  ↓ pałeczka ↓
-                </li>
-              )}
+        <article className="rounded-2xl bg-card px-5 py-6 ring-1 ring-line sm:px-8">
+          <ol className="flex flex-col">
+            {story.segments.map((s, i) => (
               <li
+                key={s.id}
                 id={`seg-${s.id}`}
-                className={`rounded-3xl p-4 ${s.author.is_ai ? "bg-ai-soft" : "bg-card ring-1 ring-line"} ${
-                  newIds.has(s.id) ? "animate-slide-up" : ""
-                }`}
+                className={`${i > 0 ? "mt-6 border-t border-line pt-6" : ""} ${newIds.has(s.id) ? "animate-slide-up" : ""}`}
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Avatar author={s.author} size="sm" />
-                  <span className={`text-sm font-extrabold ${s.author.is_ai ? "text-ai" : ""}`}>{s.author.nick}</span>
+                  <span className={`text-sm font-bold ${s.author.is_ai ? "text-ai" : "text-muted"}`}>{s.author.nick}</span>
                   {s.author.id === user?.id && s.comprehension_score !== null && (
                     <span className="ml-auto rounded-full bg-paper px-2 py-0.5 text-xs font-bold text-muted">
                       zrozumienie: {s.comprehension_score}%
@@ -290,7 +284,7 @@ export default function Story() {
                   <CorrectedBadge corrections={corrections.filter((c) => c.segment_id === s.id)} />
                 </div>
                 <p
-                  className="story-text whitespace-pre-line"
+                  className={`story-text whitespace-pre-line ${s.author.is_ai ? "border-l-2 border-ai/30 pl-4" : ""}`}
                   data-correctable={s.author.id !== user?.id ? s.id : undefined}
                 >
                   {s.id === lastMine ? s.text : <Highlighted text={s.text} quote={quote} markRef={markRef} />}
@@ -304,7 +298,7 @@ export default function Story() {
                           setSheet({ segment: s, original: selection.text });
                           clearSelection();
                         }}
-                        className="animate-pop rounded-full bg-mid px-3 py-1.5 text-sm font-extrabold text-white shadow"
+                        className="rounded-full bg-mid px-3 py-1.5 text-sm font-bold text-white"
                       >
                         To nie jest spójne?
                       </button>
@@ -319,9 +313,9 @@ export default function Story() {
                   </div>
                 )}
               </li>
-            </Fragment>
-          ))}
-        </ol>
+            ))}
+          </ol>
+        </article>
         <div ref={endRef} />
 
         <section className="mt-6">
