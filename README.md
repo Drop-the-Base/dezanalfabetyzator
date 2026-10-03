@@ -28,7 +28,7 @@ npm run dev                   # backend :8000 + frontend :5173
 Telefony w tej samej sieci Wi-Fi: `http://<IP-komputera>:5173`.
 
 Inne: `npm test` (testy backendu), `npm run lint`. Po zmianie zależności backendu zaktualizuj też `requirements.txt` (Vercel).
-Próba generalna demo przez API: `uv run --project backend python scripts/demo_rehearsal.py <url>`.
+Próba generalna demo przez API: `uv run --project backend python scripts/demo_rehearsal.py <url> --pin=<RESET_PIN>` (reset → scenariusz na historii „Smok…” → reset).
 
 ## Architektura
 
@@ -46,7 +46,7 @@ flowchart LR
         SVC["services.py<br/>moderacja · narrator · ocena + weryfikacja cytatu"]
         PROV["LLMProvider<br/>Groq / Mock"]
     end
-    DB[("Postgres (Neon)<br/>SQLite lokalnie")]
+    DB[("Postgres (Supabase)<br/>SQLite lokalnie")]
     GROQ["Groq API<br/>gpt-oss-120b<br/>gpt-oss-safeguard-20b"]
 
     FE -- "statyczne pliki" --> CDN
@@ -96,7 +96,7 @@ sequenceDiagram
 | FastAPI + React w monorepo | Python tam, gdzie AI; React = pełna kontrola nad designem mobilnym. |
 | Vercel: statyczny frontend + FastAPI jako funkcja Python | Jeden projekt, jeden publiczny HTTPS URL dla 3 telefonów. |
 | Polling zamiast WebSocketów | Vercel nie obsługuje WebSocketów; przy ~1,5 s efekt „na żywo” jest taki sam. |
-| SQLite lokalnie, Postgres (Neon) na produkcji | Serverless nie ma trwałego dysku; zmiana bazy = zmiana `DATABASE_URL`. |
+| SQLite lokalnie, Postgres (Supabase) na produkcji | Serverless nie ma trwałego dysku; zmiana bazy = zmiana `DATABASE_URL`. |
 | Groq za interfejsem `LLMProvider` + `MockProvider` | Szybka inferencja; dostawcę zmienia się jednym env; mock = testy i praca offline. |
 | Moderacja dwuwarstwowa | Lista słów (natychmiast, za darmo) + LLM (kontekst: przemoc, dane osobowe, nękanie). |
 | Osobny model do moderacji | Limity Groq są per model — moderacja na `gpt-oss-safeguard-20b` nie zjada limitu modelu oceniającego. |
@@ -114,7 +114,7 @@ sequenceDiagram
 
 Prompty: [`backend/app/ai/prompts/`](backend/app/ai/prompts). Każda decyzja AI jest zapisywana w tabeli `AIReview` (model, werdykt, uzasadnienie, cytat, surowy JSON). Wyniki testu modeli po polsku: [#21](https://github.com/Drop-the-Base/dezanalfabetyzator/issues/21).
 
-**Biblioteki:** backend — FastAPI, SQLModel, Pydantic v2, pydantic-settings, groq, psycopg 3, uvicorn, pytest, ruff; frontend — React 19, React Router 7, Vite 6, Tailwind CSS 4, TypeScript, ESLint. Hosting: Vercel, baza: Neon Postgres.
+**Biblioteki:** backend — FastAPI, SQLModel, Pydantic v2, pydantic-settings, groq, psycopg 3, uvicorn, pytest, ruff; frontend — React 19, React Router 7, Vite 6, Tailwind CSS 4, TypeScript, ESLint. Hosting: Vercel, baza: Supabase Postgres.
 
 **Narzędzia AI przy tworzeniu:** kod, dokumentacja i konfiguracja powstawały z pomocą asystenta programistycznego **Claude Code** (Anthropic; instrukcje dla agenta w [`CLAUDE.md`](CLAUDE.md)). Zespół wyznaczał zakres (issues), przeglądał i scalał zmiany oraz testował aplikację na telefonach.
 
@@ -141,7 +141,7 @@ Historia jest w pełni widoczna w `git log` (commity mają znaczniki czasu). W s
 
 ## Deploy (Vercel)
 - Projekt `sztafeta-slow`. Frontend: statyczny build `frontend/dist` (`scripts/vercel-build.sh`); backend: `api/index.py` (FastAPI jako funkcja Python). Konfiguracja w `vercel.json`.
-- Zmienne środowiskowe: `LLM_PROVIDER=groq`, `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_MODERATION_MODEL`, `DATABASE_URL` (Neon Postgres z Vercel Marketplace).
-- Bez `DATABASE_URL` aplikacja używa SQLite w `/tmp` — działa, ale dane znikają (tylko do pierwszego testu).
+- Zmienne środowiskowe: `LLM_PROVIDER=groq`, `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_MODERATION_MODEL`, `RESET_PIN`, `SESSION_SECRET`, `POSTGRES_URL` (ustawia integracja Supabase z Vercel Marketplace; pooler w trybie transakcji).
+- Bez `POSTGRES_URL`/`DATABASE_URL` aplikacja używa SQLite w `/tmp` — działa, ale dane znikają (tylko do pierwszego testu).
 - Dane demo na produkcji: `DATABASE_URL=<neon-url> npm run seed`.
 - Diagnostyka: `/api/health` (dostawca LLM), `/api/health/llm` (jedno testowe wywołanie modelu).

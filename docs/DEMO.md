@@ -5,12 +5,12 @@ Scenariusz zgodny z `docs/ARCHITECTURE.md` („Scenariusz demo”). Gotowe tekst
 ## Przygotowanie (≈10 min przed)
 1. Baza demo:
    - lokalnie: `npm run demo-reset`
-   - produkcja: `DATABASE_URL=<neon-url> npm run demo-reset` (czyści **całą** bazę Neona)
+   - produkcja: tryb jury → „🔄 Resetuj demo” (PIN z `RESET_PIN`) albo `curl -X POST -H "X-Reset-Pin: <PIN>" https://sztafeta-slow.vercel.app/api/admin/reset`
    - albo w aplikacji: profil **⚖️ Tryb jury** → „🔄 Resetuj demo” → PIN z `RESET_PIN` (`POST /api/admin/reset`, bez LLM).
      Zestaw: 8 historii we wszystkich grupach wiekowych (`backend/app/demo_data.py`); „Smok…” zostaje na samym starcie.
 2. Próba generalna (AI odpowiada tak, jak w scenariuszu):
    ```bash
-   uv run --project backend python scripts/demo_rehearsal.py https://sztafeta-slow.vercel.app
+   uv run --project backend python scripts/demo_rehearsal.py https://sztafeta-slow.vercel.app --pin=<RESET_PIN>
    ```
    Wynik `WYNIK: OK` = moderacja, ocena zrozumienia i cytat działają. Skrypt tworzy osobną historię „[próba] …” — po próbie zrób ponownie `demo-reset`.
 3. `https://sztafeta-slow.vercel.app/api/health/llm` → `"ok": true`.
@@ -49,7 +49,7 @@ Uwaga: po każdym zaakceptowanym fragmencie AI dopisuje swój, więc przed wklej
 | Groq nie odpowiada / limit (8k tokenów/min na model) | Lokalnie: `LLM_PROVIDER=mock` w `.env`, `npm run dev`, telefony na `http://<IP-laptopa>:5173`. Mock daje deterministyczne oceny i te same historie startowe. |
 | Brak internetu na sali | Hotspot z telefonu dla laptopa i 3 telefonów + tryb mock lokalnie. |
 | Moderacja odpowiada „spróbuj za chwilę” | To fallback przy błędzie LLM (nigdy automatyczna akceptacja). Odczekaj 10 s i wyślij ponownie. |
-| Dane „znikają” na produkcji | Brak Neona (`DATABASE_URL` = SQLite w `/tmp`). Na demo **musi** być Neon. |
+| Dane „znikają” na produkcji | `/api/health` musi pokazywać `"db":"postgresql"` (Supabase). `sqlite` = brak `POSTGRES_URL` na Vercelu. |
 
 ## Czasy (próba generalna 03.10, `openai/gpt-oss-120b` + `gpt-oss-safeguard-20b`)
 | Krok | Vercel |
