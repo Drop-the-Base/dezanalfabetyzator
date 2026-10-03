@@ -74,8 +74,8 @@ export function TopBar({ back, title }: { back?: string; title?: string }) {
             ←
           </Link>
         ) : (
-          <span className="text-2xl" aria-hidden>
-            🏃
+          <span aria-hidden>
+            <Mascot size={32} />
           </span>
         )}
         <h1 className="min-w-0 flex-1 truncate text-lg font-black tracking-tight">{title ?? APP_NAME}</h1>
@@ -97,9 +97,9 @@ export function TopBar({ back, title }: { back?: string; title?: string }) {
 }
 
 const TABS = [
-  { to: "/", label: "📚 Historie" },
-  { to: "/na-topie", label: "🔥 Na topie" },
-  { to: "/poprawki", label: "✍️ Poprawki" },
+  { to: "/", label: "Historie" },
+  { to: "/na-topie", label: "Na topie" },
+  { to: "/poprawki", label: "Poprawki" },
 ];
 
 /** Główne zakładki — pod TopBar na ekranach list. */
@@ -189,9 +189,7 @@ export function LikeButton({
         size === "sm" ? "px-2.5 py-1 text-sm" : "px-3 py-1.5 text-base"
       } ${liked ? "bg-bad-soft text-bad" : "bg-paper text-muted ring-1 ring-line"}`}
     >
-      <span className={liked ? "animate-pop" : ""} aria-hidden>
-        {liked ? "❤️" : "🤍"}
-      </span>
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden className={liked ? "animate-pop" : ""}><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3 1.6-1.8 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
       {count}
     </button>
   );
@@ -207,7 +205,7 @@ const ToastCtx = createContext<(text: string, icon?: ReactNode) => void>(() => {
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const push = useCallback((text: string, icon: ReactNode = "✨") => {
+  const push = useCallback((text: string, icon: ReactNode = null) => {
     const id = Date.now() + Math.random();
     setToasts((t) => [...t.slice(-2), { id, text, icon }]);
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
@@ -221,7 +219,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={t.id}
             className="animate-slide-up flex max-w-sm items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-white shadow-lg"
           >
-            <span className="text-lg">{t.icon}</span>
+            {t.icon && <span className="shrink-0">{t.icon}</span>}
             {t.text}
           </div>
         ))}

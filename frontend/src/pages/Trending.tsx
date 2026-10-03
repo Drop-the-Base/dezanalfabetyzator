@@ -6,7 +6,6 @@ import { JuryHint } from "../components/jury";
 import { AvatarStack, LikeButton, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
 
 const REFRESH_MS = 5000;
-const MEDALS = ["🥇", "🥈", "🥉"];
 
 /** Zakładka „Na topie” — historie z największą liczbą serduszek (świeże mają premię). */
 export default function Trending() {
@@ -48,7 +47,7 @@ export default function Trending() {
         <section className="flex items-center gap-3 rounded-3xl bg-ai-soft p-4">
           <Mascot size={52} />
           <p className="text-sm font-semibold text-ai">
-            Te historie zbierają najwięcej serduszek! Przeczytaj je i kliknij 🤍, jeśli Ci się podobają.
+            Te historie zbierają najwięcej serduszek! Przeczytaj je i kliknij serduszko, jeśli Ci się podobają.
           </p>
         </section>
         <JuryHint>
@@ -67,7 +66,7 @@ export default function Trending() {
                 Przeczytaj historie i daj serduszko tym, które Ci się podobają — wtedy pojawią się tutaj!
               </p>
               <Link to="/" className="rounded-full bg-ink px-4 py-2 text-sm font-extrabold text-white">
-                📚 Do historii
+                Do historii
               </Link>
             </li>
           )}
@@ -83,7 +82,7 @@ export default function Trending() {
                   className={`flex w-9 shrink-0 justify-center font-black ${i < 3 ? "text-3xl" : "text-lg text-muted"}`}
                   aria-label={`Miejsce ${i + 1}`}
                 >
-                  {MEDALS[i] ?? `${i + 1}.`}
+                  {`${i + 1}.`}
                 </span>
                 <div className="min-w-0 flex-1">
                   <h2 className="truncate text-lg font-black leading-tight">{s.title}</h2>

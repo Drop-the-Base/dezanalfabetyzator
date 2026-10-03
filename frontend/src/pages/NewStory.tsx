@@ -5,17 +5,6 @@ import { MAX_LEN } from "../lib/brand";
 import { useSession } from "../lib/session";
 import { Button, Mascot, TopBar } from "../components/ui";
 
-const THEME_ICONS: Record<string, string> = {
-  smoki: "🐉",
-  kosmos: "🚀",
-  detektyw: "🔍",
-  "piłka nożna": "⚽",
-  "gry komputerowe": "🎮",
-  szkoła: "🏫",
-  zwierzęta: "🐾",
-  "podróż w czasie": "⏳",
-};
-
 export default function NewStory() {
   const { user } = useSession();
   const nav = useNavigate();
@@ -69,8 +58,8 @@ export default function NewStory() {
         <div className="grid grid-cols-2 gap-2 rounded-2xl bg-card p-1 ring-1 ring-line">
           {(
             [
-              ["ai", "🦉 Zacznie Sowa AI"],
-              ["own", "✏️ Zaczynam sam(a)"],
+              ["ai", "Zacznie Sowa (AI)"],
+              ["own", "Zaczynam sam(a)"],
             ] as const
           ).map(([m, label]) => (
             <button
@@ -101,7 +90,6 @@ export default function NewStory() {
                     theme === t ? "bg-ai-soft ring-4 ring-ai" : "bg-card ring-2 ring-line"
                   }`}
                 >
-                  <span className="text-2xl">{THEME_ICONS[t] ?? "✨"}</span>
                   {t}
                 </button>
               ))}
@@ -141,12 +129,12 @@ export default function NewStory() {
               {text.length}/{max}
             </p>
             <p className="rounded-2xl bg-baton-soft p-3 text-sm font-semibold">
-              💡 Wprowadź bohatera z imieniem i zakończ w ciekawym momencie — tak, żeby następna osoba miała do czego
+              Wskazówka: wprowadź bohatera z imieniem i zakończ w ciekawym momencie — tak, żeby następna osoba miała do czego
               nawiązać.
             </p>
             {error && <p className="rounded-xl bg-bad-soft px-4 py-2 font-bold text-bad">{error}</p>}
             <Button className="w-full py-4 text-lg" disabled={busy || title.trim().length < 2 || text.trim().length < 15} onClick={startOwn}>
-              {busy ? "Sprawdzam…" : "Startuj sztafetę! 🏁"}
+              {busy ? "Sprawdzam…" : "Startuj sztafetę"}
             </Button>
           </section>
         )}

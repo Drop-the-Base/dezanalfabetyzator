@@ -17,7 +17,7 @@ export const AVATARS: Record<string, string> = {
 export const AGE_LABELS: Record<AgeGroup, string> = {
   "7-10": "7–10 lat",
   "11-14": "11–14 lat",
-  "15-18": "15–18 lat",
+  "15-18": "15+",
 };
 
 /** Profil jury: jedno kliknięcie na ekranie logowania, widzi panel „Resetuj demo”. */

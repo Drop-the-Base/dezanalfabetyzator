@@ -5,6 +5,7 @@ import { useJury } from "../lib/jury";
 import { useSession } from "../lib/session";
 import { JuryToggle } from "../components/jury";
 import { Button, Mascot } from "../components/ui";
+import HowItWorks from "../components/HowItWorks";
 
 const DEMO: { nick: string; avatar: string; age: AgeGroup }[] = [
   { nick: "Zosia", avatar: "rabbit", age: "7-10" },
@@ -50,23 +51,24 @@ export default function Login() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-5 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="mb-4 flex justify-end">
-        <JuryToggle label="⚖️ Tryb jury" onToggle={toggleJury} />
+        <JuryToggle label="Tryb jury" onToggle={toggleJury} />
       </div>
       <div className="animate-pop flex flex-col items-center text-center">
-        <div className="relative">
-          <Mascot size={88} />
-          <span className="absolute -right-3 -top-1 rotate-12 text-3xl">🏃</span>
-        </div>
+        <Mascot size={88} />
         <h1 className="mt-3 text-4xl font-black tracking-tight">{APP_NAME}</h1>
         <p className="mt-1 font-semibold text-muted">{TAGLINE}</p>
       </div>
 
+      <div className="mt-6">
+        <HowItWorks />
+      </div>
+
       {jury && (
         <section className="mt-6 rounded-3xl bg-ink p-4 text-white">
-          <p className="font-black">⚖️ Witamy, jury!</p>
+          <p className="font-black">Tryb jury</p>
           <p className="mt-1 text-sm font-semibold opacity-90">
-            Dane logowania są już uzupełnione — kliknij „Wbiegam do sztafety!”. Po zalogowaniu zobaczysz wszystkie
-            historie, podpowiedzi, jak testować, i przycisk resetu demo. Przełącznik u góry wyłącza tryb jury.
+            Profil „Jury” jest już wpisany — wystarczy kliknąć „Wbiegam do sztafety!”. Na liście historii czeka krótki
+            scenariusz testu (4 kroki) i przycisk resetu danych. Możesz też wpisać własne imię i wiek.
           </p>
         </section>
       )}
@@ -132,7 +134,7 @@ export default function Login() {
         {error && <p className="rounded-xl bg-bad-soft px-4 py-2 font-bold text-bad">{error}</p>}
 
         <Button type="submit" disabled={busy} className="py-4 text-lg">
-          {busy ? "Wchodzę…" : "Wbiegam do sztafety! 🏁"}
+          {busy ? "Wchodzę…" : "Wbiegam do sztafety!"}
         </Button>
       </form>
 
@@ -146,7 +148,7 @@ export default function Login() {
               disabled={busy}
               className="rounded-full bg-card px-3 py-1.5 text-sm font-bold ring-2 ring-line"
             >
-              {AVATARS[d.avatar]} {d.nick} · {d.age}
+              {AVATARS[d.avatar]} {d.nick} · {AGE_LABELS[d.age]}
             </button>
           ))}
         </div>
