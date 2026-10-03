@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink } from "react-router-dom";
-import type { Author } from "../lib/api";
+import { api, type Author, type LikeState } from "../lib/api";
 import { APP_NAME, AVATARS } from "../lib/brand";
 import { useSession } from "../lib/session";
 
@@ -138,6 +138,58 @@ export function Button({
       className={`rounded-2xl px-5 py-3 text-base font-extrabold transition disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none ${styles} ${className}`}
     >
       {children}
+    </button>
+  );
+}
+
+/**
+ * Serduszko z licznikiem. Kontrolowane: rodzic trzyma stan historii, a przycisk
+ * zmienia go od razu (optymistycznie) i potem poprawia odpowiedzią serwera.
+ * Działa też wewnątrz <Link> (blokuje przejście do historii).
+ */
+export function LikeButton({
+  storyId,
+  count,
+  liked,
+  onChange,
+  size = "md",
+}: {
+  storyId: number;
+  count: number;
+  liked: boolean;
+  onChange: (s: LikeState) => void;
+  size?: "sm" | "md";
+}) {
+  const busy = useRef(false);
+  const toggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (busy.current) return;
+    busy.current = true;
+    const next = !liked;
+    onChange({ like_count: Math.max(0, count + (next ? 1 : -1)), liked_by_me: next });
+    try {
+      onChange(await (next ? api.like(storyId) : api.unlike(storyId)));
+    } catch {
+      onChange({ like_count: count, liked_by_me: liked });
+    } finally {
+      busy.current = false;
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={liked}
+      aria-label={liked ? "Już nie lubię tej historii" : "Lubię tę historię"}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full font-extrabold transition active:scale-90 ${
+        size === "sm" ? "px-2.5 py-1 text-sm" : "px-3 py-1.5 text-base"
+      } ${liked ? "bg-bad-soft text-bad" : "bg-paper text-muted ring-1 ring-line"}`}
+    >
+      <span className={liked ? "animate-pop" : ""} aria-hidden>
+        {liked ? "❤️" : "🤍"}
+      </span>
+      {count}
     </button>
   );
 }

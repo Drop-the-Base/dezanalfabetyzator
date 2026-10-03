@@ -40,7 +40,7 @@ def updates(session: SessionDep, user: UserDep, since: datetime | None = None):
 
     return UpdatesOut(
         cursor=cursor,
-        stories=stories_out(session, list(stories)),
+        stories=stories_out(session, list(stories), user.id),
         segments=segments_out(session, list(segs)),
         my_segments=segments_out(session, list(mine)),
     )

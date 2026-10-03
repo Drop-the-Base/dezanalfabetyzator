@@ -5,7 +5,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from sqlmodel import Session, col, func, select
 
-from app.models import AIReview, Segment, SegmentStatus, Story, User
+from app.models import AIReview, Like, Segment, SegmentStatus, Story, User
 
 
 class UserOut(BaseModel):
@@ -46,6 +46,8 @@ class StoryOut(BaseModel):
     authors: list[AuthorOut]
     last_author_id: int | None
     last_human_author_id: int | None  # sztafeta: kto ostatni z dzieci dopisał fragment
+    like_count: int
+    liked_by_me: bool
     created_at: datetime
     updated_at: datetime
 
@@ -105,10 +107,31 @@ def segments_out(session: Session, segs: list[Segment]) -> list[SegmentOut]:
     ]
 
 
-def stories_out(session: Session, stories: list[Story]) -> list[StoryOut]:
+def like_counts(session: Session, story_ids: list[int]) -> dict[int, int]:
+    """Liczba serduszek per historia — jedno zapytanie z GROUP BY."""
+    if not story_ids:
+        return {}
+    rows = session.exec(
+        select(Like.story_id, func.count()).where(col(Like.story_id).in_(story_ids)).group_by(Like.story_id)
+    ).all()
+    return {sid: n for sid, n in rows}
+
+
+def liked_by(session: Session, story_ids: list[int], user_id: int | None) -> set[int]:
+    if not story_ids or user_id is None:
+        return set()
+    return set(
+        session.exec(select(Like.story_id).where(col(Like.story_id).in_(story_ids), Like.user_id == user_id)).all()
+    )
+
+
+def stories_out(session: Session, stories: list[Story], user_id: int | None) -> list[StoryOut]:
+    """`user_id` — bieżący użytkownik (do `liked_by_me`)."""
     if not stories:
         return []
     ids = [s.id for s in stories]
+    likes = like_counts(session, ids)
+    mine = liked_by(session, ids, user_id)
     approved = session.exec(
         select(Segment)
         .where(col(Segment.story_id).in_(ids), Segment.status == SegmentStatus.approved)
@@ -129,6 +152,7 @@ def stories_out(session: Session, stories: list[Story]) -> list[StoryOut]:
                 id=st.id, title=st.title, theme=st.theme, age_group=st.age_group, segment_count=len(segs),
                 authors=list(seen.values()), last_author_id=segs[-1].author_id if segs else None,
                 last_human_author_id=next((x.author_id for x in reversed(segs) if x.author_id), None),
+                like_count=likes.get(st.id, 0), liked_by_me=st.id in mine,
                 created_at=st.created_at, updated_at=st.updated_at,
             )
         )

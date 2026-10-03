@@ -35,8 +35,15 @@ export interface Story {
   authors: Author[];
   last_author_id: number | null;
   last_human_author_id: number | null;
+  like_count: number;
+  liked_by_me: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface LikeState {
+  like_count: number;
+  liked_by_me: boolean;
 }
 
 export interface StoryDetail extends Story {
@@ -132,6 +139,9 @@ export const api = {
   themes: () => request<string[]>("/themes"),
   stories: () => request<Story[]>("/stories"),
   story: (id: number) => request<StoryDetail>(`/stories/${id}`),
+  trending: () => request<Story[]>("/stories/trending"),
+  like: (id: number) => request<LikeState>(`/stories/${id}/like`, { method: "POST" }),
+  unlike: (id: number) => request<LikeState>(`/stories/${id}/like`, { method: "DELETE" }),
   createStory: (title: string, text: string) => post<SubmitResult>("/stories", { title, text }),
   createAIStory: (theme: string) => post<Story>("/stories/ai", { theme }),
   addSegment: (storyId: number, text: string) => post<SubmitResult>(`/stories/${storyId}/segments`, { text }),

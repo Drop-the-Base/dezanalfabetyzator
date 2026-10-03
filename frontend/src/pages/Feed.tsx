@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api, type Story } from "../lib/api";
+import { api, type LikeState, type Story } from "../lib/api";
 import { AGE_LABELS, etapy } from "../lib/brand";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
-import { AvatarStack, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
+import { AvatarStack, LikeButton, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
 
 export default function Feed() {
   const { user } = useSession();
@@ -25,6 +25,9 @@ export default function Feed() {
     });
     setFresh((f) => new Set([...f, ...changed.map((s) => s.id)]));
   });
+
+  const setLike = (id: number, l: LikeState) =>
+    setStories((prev) => prev && prev.map((s) => (s.id === id ? { ...s, ...l } : s)));
 
   const list = (stories ?? []).filter((s) => !onlyMine || s.age_group === user?.age_group);
 
@@ -90,13 +93,22 @@ export default function Feed() {
                         {timeAgo(s.updated_at)}
                       </span>
                     </div>
-                    {myTurn ? (
-                      <span className="rounded-full bg-baton px-3 py-1 text-xs font-extrabold text-white">
-                        Twoja kolej →
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-muted">Czekasz…</span>
-                    )}
+                    <div className="flex shrink-0 items-center gap-2">
+                      <LikeButton
+                        storyId={s.id}
+                        count={s.like_count}
+                        liked={s.liked_by_me}
+                        onChange={(l) => setLike(s.id, l)}
+                        size="sm"
+                      />
+                      {myTurn ? (
+                        <span className="rounded-full bg-baton px-3 py-1 text-xs font-extrabold text-white">
+                          Twoja kolej →
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-muted">Czekasz…</span>
+                      )}
+                    </div>
                   </div>
                 </Link>
               </li>
