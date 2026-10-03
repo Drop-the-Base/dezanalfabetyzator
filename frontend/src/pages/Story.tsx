@@ -6,7 +6,6 @@ import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
 import { Avatar, Button, LikeButton, Mascot, TopBar, useToast } from "../components/ui";
 import { CorrectedBadge, CorrectionSheet, useSegmentSelection } from "../components/corrections";
-import { JuryHint } from "../components/jury";
 import type { Correction } from "../lib/api";
 
 /** Znajduje cytat w tekście mimo różnic w białych znakach. Zwraca [start, end] albo null. */
@@ -331,10 +330,6 @@ export default function Story() {
             />
           )}
 
-          <JuryHint>
-            Poprawki: zaznacz kilka słów w cudzym fragmencie → „To nie jest spójne?” → wpisz swoją wersję. Na
-            telefonie możesz też użyć „Zgłoś niespójność” pod fragmentem.
-          </JuryHint>
 
           {!result &&
             (busy ? (

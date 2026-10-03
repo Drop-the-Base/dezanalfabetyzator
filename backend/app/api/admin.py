@@ -1,6 +1,6 @@
-"""Tryb jury: reset bazy do zestawu historii demo (bez LLM).
+"""Strona /reset: reset bazy do zestawu historii demo (bez LLM).
 
-Domyślnie przycisk w trybie jury działa bez PIN-u (jury go nie zna), z limitem jednego resetu na
+Domyślnie reset działa bez PIN-u, z limitem jednego resetu na
 RESET_COOLDOWN_S. `RESET_REQUIRES_PIN=1` wymaga nagłówka X-Reset-Pin zgodnego z RESET_PIN.
 """
 

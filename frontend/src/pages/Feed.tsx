@@ -2,16 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type LikeState, type Story } from "../lib/api";
 import { AGE_LABELS, etapy } from "../lib/brand";
-import { useJury } from "../lib/jury";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
 import { AvatarStack, LikeButton, TabBar, TopBar, timeAgo } from "../components/ui";
-import JuryPanel from "../components/JuryPanel";
 import HowItWorks from "../components/HowItWorks";
 
 export default function Feed() {
   const { user } = useSession();
-  const { jury } = useJury();
   const [stories, setStories] = useState<Story[] | null>(null);
   const [filter, setFilter] = useState<"all" | "age" | "mine">("all");
   const [fresh, setFresh] = useState<Set<number>>(new Set());
@@ -43,8 +40,6 @@ export default function Feed() {
       <TabBar />
       <main className="mx-auto max-w-xl px-4 pb-32 pt-4">
         <HowItWorks collapsible />
-
-        {jury && <JuryPanel />}
 
         <div className="mt-5 flex gap-2">
           {(

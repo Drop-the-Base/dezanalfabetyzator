@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type LikeState, type Story } from "../lib/api";
 import { AGE_LABELS, etapy } from "../lib/brand";
-import { JuryHint } from "../components/jury";
 import { AvatarStack, LikeButton, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
 
 const REFRESH_MS = 5000;
@@ -50,10 +49,6 @@ export default function Trending() {
             Te historie zbierają najwięcej serduszek! Przeczytaj je i kliknij serduszko, jeśli Ci się podobają.
           </p>
         </section>
-        <JuryHint>
-          Ranking: serduszka z premią za świeżość. Historie „na topie” są <b>tylko do czytania i oceniania</b> — nie
-          można ich dopisywać, ale można zaznaczyć niespójny fragment i zaproponować poprawkę.
-        </JuryHint>
 
         <ol className="mt-4 flex flex-col gap-3">
           {stories === null &&

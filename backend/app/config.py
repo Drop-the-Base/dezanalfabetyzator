@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     postgres_url: str = ""  # ustawia integracja Supabase na Vercelu; używane, gdy DATABASE_URL to SQLite
     cors_origins: str = "http://localhost:5173"
     reset_pin: str = ""  # PIN do POST /api/admin/reset (skrypty; omija limit czasu)
-    reset_requires_pin: bool = False  # False: przycisk w trybie jury resetuje bez PIN-u (z limitem czasu)
+    reset_requires_pin: bool = False  # False: strona /reset resetuje bez PIN-u (z limitem czasu)
     session_secret: str = ""  # klucz podpisu tokenów sesji (na produkcji ustawić; puste = klucz deweloperski)
 
 

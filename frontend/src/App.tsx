@@ -1,17 +1,19 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { JuryProvider } from "./lib/jury";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { LiveProvider } from "./lib/live";
 import { SessionProvider, useSession } from "./lib/session";
 import { Mascot, ToastProvider } from "./components/ui";
 import Corrections from "./pages/Corrections";
 import Feed from "./pages/Feed";
 import Login from "./pages/Login";
+import Reset from "./pages/Reset";
 import NewStory from "./pages/NewStory";
 import Story from "./pages/Story";
 import Trending from "./pages/Trending";
 
 function Routed() {
   const { user, loading } = useSession();
+  const { pathname } = useLocation();
+  if (pathname === "/reset") return <Reset />; // ukryta strona dla zespołu — bez logowania
   if (loading) {
     return (
       <div className="grid min-h-dvh place-items-center">
@@ -37,13 +39,11 @@ function Routed() {
 export default function App() {
   return (
     <BrowserRouter>
-      <JuryProvider>
-        <SessionProvider>
-          <ToastProvider>
-            <Routed />
-          </ToastProvider>
-        </SessionProvider>
-      </JuryProvider>
+      <SessionProvider>
+        <ToastProvider>
+          <Routed />
+        </ToastProvider>
+      </SessionProvider>
     </BrowserRouter>
   );
 }
