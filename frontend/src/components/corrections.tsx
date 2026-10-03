@@ -54,7 +54,7 @@ function sentences(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Znaczek „✍️ poprawione” + podgląd oryginał → poprawka. */
+/** Znaczek „poprawione” + podgląd oryginał → poprawka. */
 export function CorrectedBadge({ corrections }: { corrections: Correction[] }) {
   const [open, setOpen] = useState(false);
   const accepted = corrections.filter((c) => c.status === "accepted");
@@ -66,7 +66,7 @@ export function CorrectedBadge({ corrections }: { corrections: Correction[] }) {
         className="rounded-full bg-good-soft px-2 py-0.5 text-xs font-extrabold text-good"
         aria-expanded={open}
       >
-        ✍️ poprawione{accepted.length > 1 ? ` ×${accepted.length}` : ""}
+        poprawione{accepted.length > 1 ? ` ×${accepted.length}` : ""}
       </button>
       {open && (
         <ul className="order-last mt-2 flex w-full flex-col gap-2">
@@ -162,7 +162,6 @@ export function CorrectionSheet({
       >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line" aria-hidden />
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-2xl">🤔</span>
           <h2 className="flex-1 text-lg font-black">To chyba nie jest spójne</h2>
           <button onClick={onClose} className="rounded-full p-2 text-xl leading-none hover:bg-line" aria-label="Zamknij">
             ✕
@@ -229,7 +228,7 @@ export function CorrectionSheet({
               disabled={!proposed.trim() || proposed.trim() === original.trim()}
               onClick={submit}
             >
-              Sprawdź moją poprawkę 🦉
+              Sprawdź moją poprawkę
             </Button>
           </>
         )}
@@ -309,7 +308,6 @@ export function CorrectionCard({ c }: { c: Correction }) {
       </div>
       {c.ai_feedback && (
         <p className="mt-2 flex items-start gap-2 text-sm text-ai">
-          <span aria-hidden>🦉</span>
           <span className="font-semibold">{c.ai_feedback}</span>
         </p>
       )}

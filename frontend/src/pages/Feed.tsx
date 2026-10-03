@@ -5,8 +5,9 @@ import { AGE_LABELS, etapy } from "../lib/brand";
 import { useJury } from "../lib/jury";
 import { useLive } from "../lib/live";
 import { useSession } from "../lib/session";
-import { AvatarStack, LikeButton, Mascot, TabBar, TopBar, timeAgo } from "../components/ui";
+import { AvatarStack, LikeButton, TabBar, TopBar, timeAgo } from "../components/ui";
 import JuryPanel from "../components/JuryPanel";
+import HowItWorks from "../components/HowItWorks";
 
 export default function Feed() {
   const { user } = useSession();
@@ -41,13 +42,7 @@ export default function Feed() {
       <TopBar />
       <TabBar />
       <main className="mx-auto max-w-xl px-4 pb-32 pt-4">
-        <section className="flex items-center gap-3 rounded-3xl bg-ai-soft p-4">
-          <Mascot size={52} />
-          <p className="text-sm font-semibold text-ai">
-            Cześć, {user?.nick}! Wybierz historię, <b>przeczytaj ją uważnie</b> i dopisz ciąg dalszy. Ja sprawdzę, czy
-            wszystko się łączy.
-          </p>
-        </section>
+        <HowItWorks collapsible />
 
         {jury && <JuryPanel />}
 
@@ -56,7 +51,7 @@ export default function Feed() {
             [
               ["all", "Wszystkie"],
               ["age", `Dla mnie (${user ? AGE_LABELS[user.age_group] : ""})`],
-              ["mine", "✏️ Moje"],
+              ["mine", "Moje"],
             ] as const
           ).map(([val, label]) => (
             <button
@@ -130,7 +125,7 @@ export default function Feed() {
           to="/nowa"
           className="mx-auto flex max-w-xl items-center justify-center gap-2 rounded-2xl bg-baton py-4 text-lg font-extrabold text-white shadow-[0_4px_0_var(--color-baton-dark)]"
         >
-          ✏️ Nowa historia
+          + Nowa historia
         </Link>
       </div>
     </>

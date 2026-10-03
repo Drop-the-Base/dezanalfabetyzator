@@ -32,17 +32,17 @@ export default function Corrections() {
         </section>
         <JuryHint>
           Jak przetestować: otwórz fragment z listy „Do poprawienia”, <b>zaznacz palcem lub myszką</b> kilka słów
-          w cudzym tekście, kliknij „🤔 To nie jest spójne?” i wpisz swoją wersję. AI przyjmie poprawkę tylko wtedy,
+          w cudzym tekście, kliknij „To nie jest spójne?” i wpisz swoją wersję. AI przyjmie poprawkę tylko wtedy,
           gdy usuwa niespójność z wcześniejszym tekstem — pokaże też cytat-dowód.
         </JuryHint>
 
-        <h2 className="mt-6 text-lg font-black">🔎 Do poprawienia</h2>
+        <h2 className="mt-6 text-lg font-black">Do poprawienia</h2>
         <p className="text-sm text-muted">Fragmenty, które tylko częściowo łączą się z historią.</p>
         <ul className="mt-3 flex flex-col gap-3">
           {toFix === null && [0, 1].map((i) => <li key={i} className="h-24 animate-pulse rounded-3xl bg-card" />)}
           {toFix?.length === 0 && (
             <li className="rounded-3xl bg-card p-5 text-center font-semibold text-muted">
-              Wszystko wygląda spójnie. Brawo, czytelnicy! ✨
+              Wszystko wygląda spójnie. Brawo, czytelnicy!
             </li>
           )}
           {toFix?.map((t) => (
@@ -65,7 +65,7 @@ export default function Corrections() {
           ))}
         </ul>
 
-        <h2 className="mt-8 text-lg font-black">✍️ Ostatnie poprawki</h2>
+        <h2 className="mt-8 text-lg font-black">Ostatnie poprawki</h2>
         <ul className="mt-3 flex flex-col gap-3">
           {recent === null && [0, 1].map((i) => <li key={i} className="h-28 animate-pulse rounded-3xl bg-card" />)}
           {recent?.length === 0 && (
@@ -76,7 +76,7 @@ export default function Corrections() {
           {recent?.map((c) => (
             <li key={c.id}>
               <Link to={`/historia/${c.story_id}#seg-${c.segment_id}`} className="mb-1 flex gap-2 px-2 text-xs font-bold text-muted">
-                <span className="min-w-0 flex-1 truncate">📖 {c.story_title}</span>
+                <span className="min-w-0 flex-1 truncate">{c.story_title}</span>
                 <span className="shrink-0">{timeAgo(c.created_at)}</span>
               </Link>
               <CorrectionCard c={c} />

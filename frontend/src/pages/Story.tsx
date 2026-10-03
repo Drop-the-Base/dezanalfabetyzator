@@ -39,10 +39,10 @@ const VERDICT = {
 
 // Pochwała na start — każde dopisanie się liczy.
 const PRAISE = [
-  "🎉 Brawo, pałeczka przekazana!",
-  "🌟 Super, historia rośnie dzięki Tobie!",
-  "🚀 Świetnie, Twój fragment już jest w historii!",
-  "👏 Ekstra, dopisałeś(-aś) swój kawałek!",
+  "Brawo, pałeczka przekazana!",
+  "Super, historia rośnie dzięki Tobie!",
+  "Świetnie, Twój fragment już jest w historii!",
+  "Ekstra, dopisałeś(-aś) swój kawałek!",
 ];
 
 function LeaveButton({ onLeave }: { onLeave: () => void }) {
@@ -91,7 +91,7 @@ function ResultCard({
         <Mascot size={52} />
         <div className="min-w-0 flex-1">
           <p className="text-lg font-black text-good">{praise}</p>
-          {c?.strengths && <p className="mt-1 font-bold">🌟 {c.strengths}</p>}
+          {c?.strengths && <p className="mt-1 font-bold">{c.strengths}</p>}
           {c && v && (
             <>
               <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-black ${v.tone}`}>
@@ -102,11 +102,11 @@ function ResultCard({
             </>
           )}
           {result.ai_segment && (
-            <p className="mt-2 text-sm font-bold text-ai">🦉 Sowa dopisała już ciąg dalszy — przeczytaj go i pisz dalej albo przekaż pałeczkę innym.</p>
+            <p className="mt-2 text-sm font-bold text-ai">Sowa dopisała już ciąg dalszy — przeczytaj go i pisz dalej albo przekaż pałeczkę innym.</p>
           )}
           {weak && (
             <p className="mt-2 text-sm text-muted">
-              Inni czytelnicy mogą zaproponować poprawki w zakładce „✍️ Poprawki” — to też część zabawy.
+              Inni czytelnicy mogą zaproponować poprawki w zakładce „Poprawki” — to też część zabawy.
             </p>
           )}
         </div>
@@ -195,7 +195,7 @@ export default function Story() {
     const fresh = segments.filter((s) => s.story_id === storyId && !story?.segments.some((x) => x.id === s.id));
     fresh
       .filter((s) => !s.author.is_ai && s.author.id !== user?.id)
-      .forEach((s) => toast(`${s.author.nick} przejął(-ęła) pałeczkę!`, "🏃"));
+      .forEach((s) => toast(`${s.author.nick} przejął(-ęła) pałeczkę!`, <Avatar author={s.author} size="sm" />));
     if (fresh.length) setNewIds((n) => new Set([...n, ...fresh.map((s) => s.id)]));
     addSegments(fresh);
     // Zaakceptowana poprawka zmienia tekst istniejącego fragmentu
@@ -306,14 +306,14 @@ export default function Story() {
                         }}
                         className="animate-pop rounded-full bg-mid px-3 py-1.5 text-sm font-extrabold text-white shadow"
                       >
-                        🤔 To nie jest spójne?
+                        To nie jest spójne?
                       </button>
                     ) : (
                       <button
                         onClick={() => setSheet({ segment: s, original: "" })}
                         className="rounded-full px-2 py-1 text-xs font-extrabold text-muted hover:bg-paper"
                       >
-                        🔍 Zgłoś niespójność
+                        Zgłoś niespójność
                       </button>
                     )}
                   </div>
@@ -338,8 +338,8 @@ export default function Story() {
           )}
 
           <JuryHint>
-            Poprawki: zaznacz kilka słów w cudzym fragmencie → „🤔 To nie jest spójne?” → wpisz swoją wersję. Na
-            telefonie możesz też użyć „🔍 Zgłoś niespójność” pod fragmentem.
+            Poprawki: zaznacz kilka słów w cudzym fragmencie → „To nie jest spójne?” → wpisz swoją wersję. Na
+            telefonie możesz też użyć „Zgłoś niespójność” pod fragmentem.
           </JuryHint>
 
           {!result &&
@@ -351,7 +351,7 @@ export default function Story() {
             ) : (
               <div className="rounded-3xl bg-card p-4 shadow-sm ring-2 ring-baton">
                 <label htmlFor="cont" className="flex items-center gap-2 font-black">
-                  <span className="text-xl">🏃</span> {iWroteLast ? "Sowa odpowiedziała — pisz dalej!" : "Twoja kolej! Co było dalej?"}
+                  {iWroteLast ? "Sowa odpowiedziała — pisz dalej!" : "Twoja kolej! Co było dalej?"}
                 </label>
                 <p className="mt-1 text-sm text-muted">Najpierw przeczytaj uważnie całą historię — sprawdzę, czy do niej nawiązujesz.</p>
                 <textarea

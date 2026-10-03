@@ -3,7 +3,7 @@ import { api } from "../lib/api";
 import { useJury } from "../lib/jury";
 
 /** Przełącznik „Tryb jury” — na górze strony (logowanie i TopBar). */
-export function JuryToggle({ label = "⚖️ Jury", onToggle }: { label?: string; onToggle?: (on: boolean) => void }) {
+export function JuryToggle({ label = "Jury", onToggle }: { label?: string; onToggle?: (on: boolean) => void }) {
   const { jury, setJury } = useJury();
   return (
     <button
@@ -58,7 +58,7 @@ export function JuryResetButton({ big = false }: { big?: boolean }) {
         }
         title="Resetuj bazę do historii demo"
       >
-        🔄 {big ? "Resetuj bazę demo" : "Reset"}
+        {big ? "Resetuj bazę demo" : "Reset"}
       </button>
       {confirm && (
         <div
@@ -97,7 +97,7 @@ export function JuryHint({ children }: { children: ReactNode }) {
   if (!jury) return null;
   return (
     <aside className="mt-4 flex gap-2 rounded-2xl border-2 border-dashed border-ink/30 bg-card px-4 py-3 text-sm font-semibold">
-      <span aria-hidden>⚖️</span>
+      <span className="shrink-0 font-black">Jury:</span>
       <div>{children}</div>
     </aside>
   );
