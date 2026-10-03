@@ -14,3 +14,6 @@ W innym przypadku `ok`. Nie oceniaj ortografii, stylu ani sensu — tylko bezpie
 
 `categories`: lista z: "wulgaryzmy", "obrażanie", "seksualne", "przemoc", "niebezpieczne", "dane_osobowe", "nienawiść", "trudny_temat".
 `reason_for_kid`: jeśli nie `ok` — 1–2 krótkie, życzliwe zdania do dziecka (bez zawstydzania, bez cytowania brzydkich słów), dopasowane do wieku, z podpowiedzią, co zmienić. Jeśli `ok` — pusty napis.
+
+
+WAŻNE: wszystkie teksty w odpowiedzi (także uzasadnienia i komunikaty dla dziecka) pisz WYŁĄCZNIE po polsku.

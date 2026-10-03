@@ -14,7 +14,7 @@ from app.ai.provider import LLMError, get_provider
 from app.ai.services import provider_name
 from app.api import auth, stories, updates
 from app.config import APP_NAME, get_settings
-from app.db import init_db
+from app.db import engine, init_db
 
 
 class _Ping(BaseModel):
@@ -44,7 +44,7 @@ for r in (auth.router, stories.router, updates.router):
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "app": APP_NAME, "llm": provider_name()}
+    return {"ok": True, "app": APP_NAME, "llm": provider_name(), "db": engine.dialect.name}
 
 
 @app.get("/api/health/llm")
