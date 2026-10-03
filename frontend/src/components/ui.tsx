@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import type { Author } from "../lib/api";
 import { APP_NAME, AVATARS } from "../lib/brand";
 import { useSession } from "../lib/session";
@@ -90,6 +90,34 @@ export function TopBar({ back, title }: { back?: string; title?: string }) {
         )}
       </div>
     </header>
+  );
+}
+
+const TABS = [
+  { to: "/", label: "📚 Historie" },
+  { to: "/na-topie", label: "🔥 Na topie" },
+  { to: "/poprawki", label: "✍️ Poprawki" },
+];
+
+/** Główne zakładki — pod TopBar na ekranach list. */
+export function TabBar() {
+  return (
+    <nav className="border-b border-line bg-paper">
+      <div className="mx-auto grid max-w-xl grid-cols-3 gap-1 px-4 py-2">
+        {TABS.map((t) => (
+          <NavLink
+            key={t.to}
+            to={t.to}
+            end
+            className={({ isActive }) =>
+              `rounded-xl py-2 text-center text-sm font-extrabold ${isActive ? "bg-ink text-white" : "bg-card ring-1 ring-line"}`
+            }
+          >
+            {t.label}
+          </NavLink>
+        ))}
+      </div>
+    </nav>
   );
 }
 
