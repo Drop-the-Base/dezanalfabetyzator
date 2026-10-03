@@ -15,7 +15,7 @@ Dziecko A czyta ──► pisze kontynuację ──► AI: moderacja ──► A
                                    + "Nie zgadzam się"      + "Nie zgadzam się"
         │
         ▼
-Dziecko B widzi nowy fragment na swoim telefonie (WebSocket) i pisze dalej ... (pętla)
+Dziecko B widzi nowy fragment na swoim telefonie (live polling) i pisze dalej ... (pętla)
 ```
 
 ## Komponenty
@@ -24,27 +24,27 @@ Dziecko B widzi nowy fragment na swoim telefonie (WebSocket) i pisze dalej ... (
 monorepo/
 ├── backend/   FastAPI (Python 3.12+, uv)
 │   ├── api/         REST: auth (demo), stories, segments, appeals, admin
-│   ├── realtime/    WebSocket hub: broadcast nowych historii i fragmentów
+│   ├── api/updates  GET /api/updates?since=… (polling, kursor czasowy)
 │   ├── ai/
 │   │   ├── provider.py     interfejs LLMProvider + GroqProvider + MockProvider
 │   │   ├── moderation.py   warstwa 1: lokalna lista słów (PL), warstwa 2: LLM (kategorie)
 │   │   ├── starter.py      generowanie pierwszego akapitu (temat, grupa wiekowa)
 │   │   ├── comprehension.py ocena spójności kontynuacji z wcześniejszym tekstem
 │   │   └── prompts/        prompty jako pliki .md (wersjonowane)
-│   ├── db/          SQLModel + SQLite
-│   └── main.py      serwuje też zbudowany frontend (jeden kontener)
+│   ├── db/          SQLModel: SQLite lokalnie, Postgres (Neon) na Vercelu
+│   └── main.py      aplikacja FastAPI (na Vercelu: funkcja Python pod /api/*)
 └── frontend/  React + Vite + TypeScript + Tailwind (mobile-first, PWA)
     ├── screens/     Login, Feed, Story (czytanie + pisanie), Wynik AI, Panel nauczyciela
-    └── lib/         klient API, klient WebSocket, store
+    └── lib/         klient API, hook usePolling (live updates), store
 ```
 
 ### Dlaczego tak
 | Decyzja | Uzasadnienie |
 |---|---|
 | FastAPI + React w monorepo | Python tam, gdzie AI; React daje pełną kontrolę nad designem (20% oceny). |
-| Jeden kontener (FastAPI serwuje build Reacta) | Jeden deploy, jeden URL dla 3 telefonów, brak CORS. |
-| SQLite | Zero konfiguracji; wystarcza na demo. Migracja do Postgresa = zmiana `DATABASE_URL`. |
-| WebSocket broadcast (in-memory) | Efekt „na żywo” na 3 telefonach; jedna instancja wystarcza. |
+| Vercel: statyczny frontend + FastAPI jako funkcja Python | Jeden projekt, jeden URL dla 3 telefonów, brak CORS, deploy z gita. |
+| SQLite lokalnie, Postgres (Neon) na produkcji | Funkcje serverless nie mają trwałego dysku; zmiana bazy = zmiana `DATABASE_URL`. |
+| Polling co ~1,5 s zamiast WebSocketów | Vercel nie obsługuje WebSocketów; polling z kursorem `since` daje efekt „na żywo” na demo. Ścieżka rozwoju: Pusher/Ably. |
 | Groq za interfejsem `LLMProvider` | Szybka inferencja (ważne na demo); dostawcę można podmienić jednym env. `MockProvider` pozwala pracować offline i w testach. |
 | Moderacja dwuwarstwowa | Lokalna lista słów łapie oczywiste przypadki natychmiast i za darmo; LLM łapie kontekst (przemoc, treści dla dorosłych, dane osobowe, nękanie). |
 | Logowanie demo (nick + avatar + wiek) | Bez danych osobowych (RODO dla dzieci < 16 lat); szybkie wejście na demo. |
