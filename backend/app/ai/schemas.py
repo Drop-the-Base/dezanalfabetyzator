@@ -24,3 +24,9 @@ class ComprehensionResult(BaseModel):
     feedback_for_kid: str
     evidence: str = ""
     strengths: str = ""
+
+
+class CorrectionJudgement(BaseModel):
+    verdict: Literal["accepted", "rejected"]
+    feedback_for_kid: str
+    evidence: str = ""

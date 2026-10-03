@@ -4,7 +4,13 @@ import logging
 import re
 
 from app.ai.provider import LLMError, get_provider, load_prompt
-from app.ai.schemas import ComprehensionResult, ModerationResult, StoryContinuation, StoryStart
+from app.ai.schemas import (
+    ComprehensionResult,
+    CorrectionJudgement,
+    ModerationResult,
+    StoryContinuation,
+    StoryStart,
+)
 from app.ai.wordlist import find_profanity
 from app.config import get_settings
 
@@ -110,4 +116,23 @@ def assess_comprehension(previous: str, new: str, age_group: str) -> Comprehensi
     return r
 
 
-__all__ = ["LLMError", "moderate", "start_story", "assess_comprehension", "continue_story", "provider_name"]
+def judge_correction(
+    previous: str, segment: str, original: str, proposed: str, reason: str, age_group: str
+) -> CorrectionJudgement:
+    """Czy poprawka usuwa niespójność z wcześniejszym tekstem i nie psuje sensu? Rzuca LLMError."""
+    r = get_provider().complete_json(
+        "correction",
+        _fill(load_prompt("correction"), age_group=age_group),
+        f"<previous>\n{previous}\n</previous>\n\n<segment>\n{segment}\n</segment>\n\n"
+        f"<original>\n{original}\n</original>\n\n<proposed>\n{proposed}\n</proposed>\n\n"
+        f"<reason>\n{reason}\n</reason>",
+        CorrectionJudgement,
+    )
+    r.evidence = ground_evidence(r.evidence, previous or segment)
+    return r
+
+
+__all__ = [
+    "LLMError", "moderate", "start_story", "assess_comprehension", "continue_story", "judge_correction",
+    "provider_name",
+]
