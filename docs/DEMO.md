@@ -39,7 +39,7 @@ Na ekranie logowania są gotowe profile demo (jedno kliknięcie). Kuba i Maja pr
    Oczekiwane: odrzucone przez LLM (`dane_osobowe`) — tego lista słów by nie złapała.
 6. **Maja** wkleja `maja_ok` → opublikowane, wysoka ocena. Sztafeta idzie dalej.
 
-Zasada sztafety: ta sama osoba nie może dopisać dwóch „ludzkich” fragmentów z rzędu — między nimi musi pisać ktoś inny (409 „Teraz kolej kogoś innego!”). Fragmenty AI się nie liczą.
+Każdy może zawsze wrócić do historii i pisać dalej — także sam, bo po każdym fragmencie dziecka odpowiada narrator AI. Swoje historie znajdziesz w feedzie pod filtrem „✏️ Moje”.
 
 Uwaga: po każdym zaakceptowanym fragmencie AI dopisuje swój, więc przed wklejeniem kolejnego tekstu warto przeczytać na głos fragment Sowy — to dobry moment w pitchu.
 
