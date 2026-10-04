@@ -52,3 +52,5 @@ Thumbs.db
 # Vercel (lokalne powiązanie z projektem — nie commitować)
 .vercel/
 vercel.zip
+.vercel
+.env*
